@@ -1,51 +1,52 @@
 import React from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { BasicLayout } from '../layouts/BasicLayout';
-import { HomePage } from '../pages/HomePage';
+import  BasicLayout  from '../layouts/BasicLayout';
+import  HomePage  from '../pages/HomePage';
 import { ErrorPage } from '../pages/ErrorPage';
-import { UsPage } from '../pages/UsPage';
+import  Servicios  from '../pages/Services';
+import  UsPage  from '../pages/UsPage';
 import { Staff } from '../pages/Staff';
 import { ContactUs } from '../pages/ContactUs';
 import { AreaInfantilPage } from '../pages/areas/AreaInfantilPage';
 import { Loading } from '../components/Loading/Loading';
-import { TerapiaLenguajePage } from '../pages/services-infantil/TerapiaLenguajePage';
-import { TerapiaOcupacionalPage } from '../pages/services-infantil/TerapiaOcupacionalPage';
-import { PsicologiaInfantilPage } from '../pages/services-infantil/PsicologiaInfantilPage';
-import { EvaluacionPsicologicaColegioPage } from '../pages/services-infantil/EvaluacionPsicPage';
-import { OrientacionVocacionalPage } from '../pages/services-infantil/OrientacionVocacionalPage';
+import  TerapiaLenguajePage  from '../pages/services-infantil/TerapiaLenguajePage';
+import  TerapiaOcupacionalPage  from '../pages/services-infantil/TerapiaOcupacionalPage';
+import  PsicologiaInfantilPage  from '../pages/services-infantil/PsicologiaInfantilPage';
+import  EvaluacionPsicologicaColegioPage  from '../pages/services-infantil/EvaluacionPsicPage';
+import  OrientacionVocacionalPage  from '../pages/services-infantil/OrientacionVocacionalPage';
 import { AreaAdultosPage } from '../pages/areas/AreaAdultosPage';
 import { AdultoPsicologiaIndividualPage } from '../pages/service-adulto/AdultoPsicologiaIndividualPage';
-import { AdultoTerapiaParejaPage } from '../pages/service-adulto/AdultoTerapiaParejaPage';
-import { AdultoTerapiaFamiliarPage } from '../pages/service-adulto/AdultoTerapiaFamiliarPage';
-import { AdultoTerapiaLenguajePage } from '../pages/service-adulto/AdultoTerapiaLenguajePage';
+import  AdultoTerapiaParejaPage  from '../pages/service-adulto/AdultoTerapiaParejaPage';
+import  AdultoTerapiaFamiliarPage  from '../pages/service-adulto/AdultoTerapiaFamiliarPage';
+import  AdultoTerapiaLenguajePage  from '../pages/service-adulto/AdultoTerapiaLenguajePage';
 import { TerminosCondiciones } from '../pages/TerminosCondiciones';
 import { TrabajaNosotros } from '../pages/TrabajaNosotros';
-import { TerapiaAprendizajePage } from '../pages/services-infantil/TerapiaAprendizajePage';
+import  TerapiaAprendizajePage  from '../pages/services-infantil/TerapiaAprendizajePage';
 import { ListaPacientes } from '../pages/ListaPacientes';
-import { NavBar } from '../components/NavBar/NavBar';
 import Preguntas from '../pages/Preguntas';
 import { ReportesEvaluaciones } from '../pages/ReportesEvaluaciones';
 import RegistroPacientePage from '../pages/RegistroPacientePage';
 import EditarPacientePage from '../pages/EditarPacientePage';
-import { AdultoEvalPsicolUniverPage } from '../pages/service-adulto/AdultoEvalPsicolUniverPage';
+import  AdultoEvalPsicolUniverPage  from '../pages/service-adulto/AdultoEvalPsicolUniverPage';
 import TopMenu from '../components/TopMenu';
 import Login from '../components/Login';
 import PrivateRoute from '../components/PrivateRoute';
 import Usuarios from '../pages/Usuarios';
 import Agenda from '../pages/Agenda';
+import ReglamentoInterno from '../pages/ReglamentoInterno';
+import PoliticaPrivacidad from '../pages/PoliticaPrivacidad';
+import Mantenimiento from '../pages/Mantenimiento';
+
 
 export const AppRouter = () => {
   const location = useLocation();
   
   // Ocultar NavBar/TopMenu en todas las rutas de intranet y en editar-paciente
   const shouldHideNavBar = location.pathname.startsWith('/intranet') || location.pathname.startsWith('/editar-paciente/');
-  const showNavBar = !shouldHideNavBar;
-
-  
 
   return (
     <>
-      {location.pathname === '/intranet' ? null : (showNavBar ? <NavBar /> : <TopMenu />)}
+      {/* ELIMINADO: El NavBar ya está en BasicLayout */}
       <Routes>
         <Route path="/intranet" element={<Login />} />
         <Route path="/intranet/lista-pacientes" element={
@@ -69,11 +70,12 @@ export const AppRouter = () => {
           </PrivateRoute>
         } />
         
-        <Route path="/editar-paciente/:id" element={<EditarPacientePage />} />
+        <Route path="/editar-paciente/:id" element={<><TopMenu /><EditarPacientePage /></>} />
         <Route path="/preguntas" element={<Preguntas />} />
         <Route path="/" element={<BasicLayout />}>
           <Route index element={<HomePage />} />
           <Route path="nosotros" element={<UsPage />} />
+          <Route path="servicios" element={<Servicios/>} />
           <Route path="staff" element={<Staff />} />
           <Route path="contactanos" element={<ContactUs />} />
           <Route path="area-infantil-adolescentes" element={<AreaInfantilPage />} /> 
@@ -90,6 +92,9 @@ export const AppRouter = () => {
           <Route path="adulto-terapia-lenguaje" element={<AdultoTerapiaLenguajePage />} />
           <Route path="adulto-evaluacion-psicologica-universidad" element={<AdultoEvalPsicolUniverPage />} />
           <Route path="terminos-condiciones" element={<TerminosCondiciones />} />
+          <Route path="mantenimiento" element={<Mantenimiento />} />
+          <Route path="reglamento-interno" element={<ReglamentoInterno />} />
+          <Route path="politica-privacidad" element={<PoliticaPrivacidad />} />
           <Route path="trabaja-nosotros" element={<TrabajaNosotros />} />
           <Route path="registro-paciente" element={<RegistroPacientePage />} />
           <Route path="loading" element={<Loading />} />
@@ -99,4 +104,3 @@ export const AppRouter = () => {
     </>
   );
 }
-

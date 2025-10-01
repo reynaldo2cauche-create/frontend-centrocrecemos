@@ -1,193 +1,181 @@
 import React from 'react'
-import { Typography, Grid, Box, Button, List, ListItem, ListItemIcon, ListItemText, Card, useMediaQuery } from '@mui/material';
-import { WhatsApp, CheckCircle } from '@mui/icons-material';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import { ThemePalette } from '../../theme/theme';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
-const itemData = [ 
-  {
-    id: '1',
-    img: '/terapeutica-merlin.jpg',
-    title: 'Lic. Merlin F.',
-    profession: 'Terapeuta de lenguaje',
-  },
-];
-
-export const AdultoTerapiaLenguajePage = () => {
-
-  const isMobile = useMediaQuery('(max-width:600px)'); // Detecta pantallas móviles
-
-  return (
-    <Box sx={{ pt: 2, pb: 4, maxWidth: '100%', overflowX: 'hidden', padding: 0 }}>
-      {/* Background image */}
-      <Box
-        sx={{
-          width: '100%',
-          minHeight: '50vh',
-          height: 'auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-        }}
-      >
-        <img
-          src={isMobile ? 'fondo-ter-leng-adul-mov.png' : 'fondo-terapia-lenguaje-adult.png'}
-          alt="Terapia de Lenguaje"
-          style={{
-            width: '100%',
-            height: 'auto',
-            maxHeight: '90vh',
-            objectFit: 'cover',
-          }}
-        />
-
-        <Button
-          variant="contained"
-          sx={{
-            position: 'absolute',
-            bottom: 20,
-            right: 20,
-            backgroundColor: '#FFC107',
-            color: '#000',
-            fontWeight: 'bold',
-            '&:hover': {
-              backgroundColor: '#FFA000',
-            },
-          }}
-          startIcon={<WhatsApp />}
-          onClick={() =>
-            window.open(
-              'https://api.whatsapp.com/send?phone=+51957064401&text=%F0%9F%97%A3%EF%B8%8F%20%C2%A1Hola!%20Me%20gustar%C3%ADa%20saber%20m%C3%A1s%20sobre%20la%20terapia%20de%20lenguaje%20y%20c%C3%B3mo%20puede%20ayudarme.',
-              '_blank'
-            )
-          }
-        >
-          Reservar Cita
-        </Button>
-      </Box>
-
-      {/* SECCIÓN DE PSICOTERAPIA INDIVIDUAL */}
-      <Box sx={{ textAlign: 'left', mt: 4, px: 3, pt: 4, maxWidth: '800px', margin: 'auto' }}>
-        {/* TÍTULO PRINCIPAL EN NEGRITA */}
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#F57C00', mb: 1 }}>
-          Terapia de Lenguaje en Adultos
-        </Typography>
-        <Typography sx={{ fontSize: '16px', color: '#333' }}>
-          La terapia de lenguaje en adultos está dirigida a personas que presentan dificultades en la comunicación, ya sea por trastornos neurológicos, accidentes cerebrovasculares, enfermedades degenerativas o problemas adquiridos.
-        </Typography>
-
-        {/* CUÁNDO ACUDIR A TERAPIA */}
-        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#F57C00', mt: 3, mb: 1 }}>
-          ¿Cuándo acudir a terapia?
-        </Typography>
-
-        <List dense>
-          {[
-            'Dificultades en la pronunciación o articulación.',
-            'Problemas en la fluidez verbal (tartamudez).',
-            'Trastornos del lenguaje por accidentes cerebrovasculares o traumatismos.',
-            'Dificultades en la comprensión y expresión del lenguaje.',
-            'Pérdida de la voz o alteraciones en la comunicación por cirugías o afecciones neurológicas.',
-            'Problemas de deglución o disfagia, que dificultan tragar alimentos o líquidos.'
-          ].map((item, index) => (
-            <ListItem key={index} disableGutters sx={{ display: 'flex', alignItems: 'center' }}>
-              <CheckCircle sx={{ color: '#7CB342', fontSize: 20, mr: 1 }} />
-              <ListItemText 
-                primary={item} 
-                primaryTypographyProps={{ sx: { fontSize: '16px' } }} 
-              />
-            </ListItem>
-          ))}
-        </List>
-
-        {/* CÓMO TE AYUDAMOS */}
-        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#F57C00', mt: 3, mb: 1 }}>
-          ¿Cómo te ayudamos?
-        </Typography>
-
-        <List dense>
-          {[
-            'Rehabilitación del habla y la comunicación.',
-            'Ejercicios para mejorar la articulación y fluidez verbal.',
-            'Estrategias para recuperar y fortalecer la voz.',
-            'Apoyo en la comprensión y producción del lenguaje.',
-            'Terapia para mejorar la deglución y evitar riesgos al comer o beber.'
-          ].map((item, index) => (
-            <ListItem key={index} disableGutters sx={{ display: 'flex', alignItems: 'center' }}>
-              <FiberManualRecordIcon sx={{ color: '#03A9F4', fontSize: 12, mr: 1 }} />
-              <ListItemText 
-                primary={item} 
-                primaryTypographyProps={{ sx: { fontSize: '16px' } }} 
-              />
-            </ListItem>
-          ))}
-        </List>
-
-        {/* MENSAJE FINAL */}
-        <Typography
-          sx={{
-            fontSize: '16px',
-            mt: 3,
-          }}
-        >
-          💻 Sesiones presenciales y virtuales disponibles.
-        </Typography>
-
-        <Typography
-          sx={{
-            fontSize: '16px',
-            mt: 3,
-          }}
-        >
-          🗣️ ¡Mejora tu comunicación y calidad de vida con nuestra terapia especializada!
-        </Typography>
-      </Box>
-      
-      <Typography variant="h5" gutterBottom textAlign="center" sx={{ fontWeight: 'bold', mb: 3, mt: 3 }} 
-        color={ThemePalette.PURPLE_LIGHT}>
-        Profesionales
-      </Typography>
-
-      <Grid container spacing={4} justifyContent="center" p='15px 50px 41px'>
-        {itemData.map((prof) => (
-          <Grid item xs={12} sm={6} md={4} key={prof.id}>
-            <Card
-              sx={{
-                textAlign: 'center',
-                p: 3,
-                boxShadow: 3,
-                borderRadius: 3,
-                backgroundColor: '#ffffff', // Fondo sutil
-                transition: '0.3s',
-                '&:hover': { boxShadow: 6 } // Efecto al pasar el cursor
-              }}
-            >
-              <Box
-                component="img"
-                src={prof.img}
-                alt={prof.title}
-                sx={{
-                  width: 260, // Mejor proporción
-                  height: 300, // Más alto
-                  borderRadius: '16px', // Bordes suavizados
-                  mb: 2,
-                  objectFit: 'cover', // Evita que la imagen se deforme
-                  border: '1px solid #e0e0e0' // Borde más sutil
-                }}
-              />
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#333' }}>
-                {prof.title}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {prof.profession}
-              </Typography>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+import  {initializePageScripts}  from '../../utils/initScripts';
 
 
-    </Box>
+ const AdultoTerapiaLenguajePage = () => {
+
+    useEffect(() => {
+         initializePageScripts();
+       }, []);
+
+ return (
+    <main>
+      {/* Título */}
+      <div className="page-title page-title-custom" data-aos="fade">
+        <span className="bubble bubble1"></span>
+        <span className="bubble bubble2"></span>
+        <span className="bubble bubble3"></span>
+
+        <div className="container text-center">
+          <h1 className="section-title text-center">Terapia de Lenguaje en Adultos</h1>
+          <p className="page-subtitle">
+            La terapia de lenguaje en adultos está dirigida a personas que presentan
+            dificultades en la comunicación, ya sea por trastornos neurológicos,
+            accidentes cerebrovasculares, enfermedades degenerativas o problemas
+            adquiridos.
+          </p>
+          <nav className="breadcrumbs mt-3">
+            <ol>
+              <li><Link to="/">Inicio</Link></li>
+              <li><Link to="/servicios">Servicios</Link></li>
+              <li className="current">Terapia de Lenguaje en Adultos</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <section id="terapia-lenguaje-adultos" className="features section">
+        <div className="container">
+          {/* Tabs */}
+          <div className="d-flex justify-content-center">
+            <ul className="nav nav-tabs" data-aos="fade-up" data-aos-delay="100">
+              <li className="nav-item">
+                <a className="nav-link active show" data-bs-toggle="tab" data-bs-target="#lenguaje-tab-1">
+                  <h4>¿Qué es la Terapia de Lenguaje en Adultos?</h4>
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" data-bs-toggle="tab" data-bs-target="#lenguaje-tab-2">
+                  <h4>¿Cuándo acudir?</h4>
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link" data-bs-toggle="tab" data-bs-target="#lenguaje-tab-3">
+                  <h4>¿Cómo te ayudamos?</h4>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div className="tab-content" data-aos="fade-up" data-aos-delay="200">
+            {/* Qué es */}
+            <div className="tab-pane fade active show" id="lenguaje-tab-1">
+              <div className="row">
+                <div className="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0 d-flex flex-column justify-content-center">
+                  <h3>Terapia de Lenguaje en Adultos</h3>
+                  <p className="fst-italic">
+                    La terapia de lenguaje en adultos está dirigida a personas que presentan dificultades
+                    en la comunicación, ya sea por trastornos neurológicos, accidentes cerebrovasculares,
+                    enfermedades degenerativas o problemas adquiridos.
+                  </p>
+                  <p>
+                    💻 Sesiones <strong>presenciales</strong> y <strong>virtuales</strong> disponibles.
+                  </p>
+                  <p className="fw-bold fst-italic" style={{ color: "var(--accent-color)" }}>
+                    🗣️ ¡Mejora tu comunicación y calidad de vida con nuestra terapia especializada!
+                  </p>
+                </div>
+                <div className="col-lg-6 order-1 order-lg-2 text-center">
+                  <img
+                    src="/assets/img/servicios/queeslenguajeadulto.webp"
+                    alt="Terapia de Lenguaje en Adultos"
+                    className="img-fluid"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Cuándo acudir */}
+            <div className="tab-pane fade" id="lenguaje-tab-2">
+              <div className="row">
+                <div className="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0 d-flex flex-column justify-content-center">
+                  <h3>¿Cuándo acudir a terapia?</h3>
+                  <ul>
+                    <li><i className="bi bi-check2-all"></i> Dificultades en la pronunciación o articulación.</li>
+                    <li><i className="bi bi-check2-all"></i> Problemas en la fluidez verbal (tartamudez).</li>
+                    <li><i className="bi bi-check2-all"></i> Trastornos del lenguaje por accidentes cerebrovasculares o traumatismos.</li>
+                    <li><i className="bi bi-check2-all"></i> Dificultades en la comprensión y expresión del lenguaje.</li>
+                    <li><i className="bi bi-check2-all"></i> Pérdida de la voz o alteraciones en la comunicación.</li>
+                    <li><i className="bi bi-check2-all"></i> Problemas de deglución o disfagia.</li>
+                  </ul>
+                </div>
+                <div className="col-lg-6 order-1 order-lg-2 text-center">
+                  <img
+                    src="/assets/img/servicios/cuandoirlenguajeadulto.jpg"
+                    alt="Cuándo acudir a Terapia de Lenguaje en Adultos"
+                    className="img-fluid"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Cómo ayudamos */}
+            <div className="tab-pane fade" id="lenguaje-tab-3">
+              <div className="row">
+                <div className="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0 d-flex flex-column justify-content-center">
+                  <h3>¿Cómo te ayudamos?</h3>
+                  <ul>
+                    <li><i className="bi bi-check2-all"></i> Rehabilitación del habla y la comunicación.</li>
+                    <li><i className="bi bi-check2-all"></i> Ejercicios para mejorar la articulación y fluidez verbal.</li>
+                    <li><i className="bi bi-check2-all"></i> Estrategias para recuperar y fortalecer la voz.</li>
+                    <li><i className="bi bi-check2-all"></i> Apoyo en la comprensión y producción del lenguaje.</li>
+                    <li><i className="bi bi-check2-all"></i> Terapia para mejorar la deglución.</li>
+                  </ul>
+                  <div className="mt-4">
+                    <p><i className="bi bi-calendar-check-fill"></i> Reserva tu cita ahora mismo.</p>
+                    <a
+                      href="https://api.whatsapp.com/send?phone=+51957064401&text=🗣️%20¡Hola!%20Estoy%20interesado%20en%20la%20terapia%20de%20lenguaje%20en%20adultos,%20¿me%20pueden%20dar%20detalles?"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-warning fw-bold mt-2"
+                    >
+                      <i className="bi bi-whatsapp"></i> Reservar Cita
+                    </a>
+                  </div>
+                </div>
+                <div className="col-lg-6 order-1 order-lg-2 text-center">
+                  <img
+                    src="/assets/img/servicios/procesorlenguajeadulto.jpg"
+                    alt="Cómo ayudamos en Terapia de Lenguaje en Adultos"
+                    className="img-fluid"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Profesionales */}
+      <section id="team" className="team-area section-padding" data-aos="fade-up">
+        <div className="container">
+          <div className="section-title text-center">
+            <h2>Profesionales</h2>
+            <p>Conoce a las especialistas encargadas de brindar las terapias de lenguaje.</p>
+          </div>
+          <div className="row justify-content-center">
+            <div className="col-lg-4 col-md-6 col-sm-12">
+              <div className="our-team">
+                <img src="/assets/img/servicios/merlin.jpg" alt="Lic. Merlín Fernandez" />
+                <div className="team-content">
+                  <h3 className="title">Lic. Merlín Fernandez</h3>
+                  <span className="post">Terapeuta de Lenguaje</span>
+                  <div className="credential-info">
+                    <i className="bi bi-award-fill"></i>
+                    <span className="credential-label">CTMP</span>
+                    <span className="credential-number">12937</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 };
+export default AdultoTerapiaLenguajePage;
