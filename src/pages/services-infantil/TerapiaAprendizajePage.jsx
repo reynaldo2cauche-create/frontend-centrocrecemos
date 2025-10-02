@@ -187,11 +187,7 @@ const TerapiaAprendizajePage = () => {
                 <div className="team-content">
                   <h3 className="title">Lic. Lizbeth Olortegui</h3>
                   <span className="post">Terapeuta de aprendizaje</span>
-                  <div className="credential-info">
-                    <i className="bi bi-award-fill"></i>
-                    <span className="credential-label">CTMP:</span>
-                    <span className="credential-number">57370</span>
-                  </div>
+                  
                 </div>
               </div>
             </div>

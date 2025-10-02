@@ -1,28 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Card, CardContent, Divider, Grid, TextField, Typography, styled, useMediaQuery, useTheme } from '@mui/material'
 import { FontSize, ThemePalette } from '../theme/theme'
 import { AccessTime, Edit, LocationOn, MailOutline, PhoneInTalk } from '@mui/icons-material';
 import { CButton } from '../components/Button';
-import { useForm } from 'react-hook-form';
-import emailjs from "@emailjs/browser";
-import { useEffect } from 'react';
-import  {initializePageScripts}  from '../utils/initScripts';
-const defaultValues = {
-  name: "",
-  lastname: "",
-  phone: "",
-  email: "",
-  message: "",
-};
-
-const msgRequired = "Este campo es requerido";
+import emailjs from '@emailjs/browser';
+import { initializePageScripts } from '../utils/initScripts';
 
 export const ContactUs = () => {
   
-  
    useEffect(() => {
-          initializePageScripts();
-        }, []); 
+    initializePageScripts();
+    emailjs.init("89VA2AX2iodlkfUDp"); // tu Public Key
+  }, []);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -33,54 +22,91 @@ export const ContactUs = () => {
     message: ''
   });
 
+  
+ const [errors, setErrors] = useState({}); // Para mensajes de error inline
   const [formStatus, setFormStatus] = useState({
     loading: false,
-    error: '',
     success: false
   });
 
+  const [showModal, setShowModal] = useState(false);
+
+  // Validación inline
+  const validateField = (name, value) => {
+    switch(name){
+      case 'name':
+        if(!value.trim()) return "El nombre es obligatorio.";
+        break;
+      case 'email':
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          return "Por favor ingresa un correo válido.";
+        break;
+      case 'phone':
+        if(!/^\d{9}$/.test(value))
+          return "El número debe tener exactamente 9 dígitos.";
+        break;
+      default:
+        return "";
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Validación al escribir
+    const errorMsg = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: errorMsg }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormStatus({ loading: true, error: '', success: false });
+
+    // Validar todos los campos obligatorios antes de enviar
+    const newErrors = {
+      name: validateField('name', formData.name),
+      email: validateField('email', formData.email),
+      phone: validateField('phone', formData.phone)
+    };
+
+    setErrors(newErrors);
+
+    // Si hay errores, no enviar
+    if(Object.values(newErrors).some(msg => msg)) return;
+
+    setFormStatus({ loading: true, success: false });
 
     try {
-      const response = await fetch('forms/contact.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams(formData).toString()
-      });
+      const templateParams = {
+        to_email: 'info@crecemos.com.pe',
+        from_name: formData.name,
+        from_email: formData.email,
+        phone: formData.phone,
+        service: formData.service,
+        subject: formData.subject,
+        message: formData.message,
+        reply_to: formData.email
+      };
 
-      if (response.ok) {
-        setFormStatus({ loading: false, error: '', success: true });
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          service: '',
-          subject: '',
-          message: ''
-        });
-      } else {
-        throw new Error('Error al enviar el formulario');
+      const response = await emailjs.send(
+        'service_4z5rxtl',
+        'template_6asz72w',
+        templateParams
+      );
+
+      if(response.status === 200){
+        setFormStatus({ loading: false, success: true });
+        setFormData({ name: '', email: '', phone: '', service: '', subject: '', message: '' });
+        setErrors({});
+        setShowModal(true);
       }
     } catch (error) {
-      setFormStatus({ 
-        loading: false, 
-        error: 'Hubo un problema al enviar tu mensaje. Por favor intenta nuevamente.', 
-        success: false 
-      });
+      console.error(error);
+      setFormStatus({ loading: false, success: false });
+      alert("Error al enviar el mensaje. Intenta nuevamente.");
     }
   };
+
 
   return (
     <main className="main">
@@ -164,61 +190,64 @@ export const ContactUs = () => {
                   sobre nuestros servicios de terapia y rehabilitación.
                 </p>
 
-                <div className="php-email-form" data-aos="fade-up" data-aos-delay="200">
+                <form className="php-email-form" data-aos="fade-up" data-aos-delay="200" onSubmit={handleSubmit}>
                   <div className="row gy-4">
                     <div className="col-md-6">
                       <input 
                         type="text" 
                         name="name" 
-                        className="form-control" 
+                        className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                         placeholder="Tu Nombre Completo" 
-                        required
+                   
                         value={formData.name}
                         onChange={handleChange}
                       />
+                       {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                     </div>
 
                     <div className="col-md-6">
                       <input 
-                        type="email" 
-                        className="form-control" 
+                        type="text" 
+                        className={`form-control ${errors.email ? 'is-invalid' : ''}`} 
                         name="email" 
                         placeholder="Tu Correo Electrónico" 
-                        required
+                        
                         value={formData.email}
                         onChange={handleChange}
                       />
+                      {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                     </div>
 
                     <div className="col-md-6">
                       <input 
                         type="tel" 
-                        className="form-control" 
+                        className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
                         name="phone" 
                         placeholder="Tu Número de Teléfono" 
-                        required
+                       
                         value={formData.phone}
                         onChange={handleChange}
                       />
+                      {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
                     </div>
 
                     <div className="col-md-6">
                       <select 
                         className="form-control" 
                         name="service" 
-                        required
+                      
                         value={formData.service}
                         onChange={handleChange}
                       >
                         <option value="">Servicio de Interés</option>
-                        <option value="psicologia-infantil">Psicología Infantil</option>
-                        <option value="fisioterapia">Fisioterapia</option>
-                        <option value="terapia-lenguaje">Terapia de Lenguaje</option>
-                        <option value="terapia-ocupacional">Terapia Ocupacional</option>
-                        <option value="estimulacion-temprana">Estimulación Temprana</option>
-                        <option value="terapia-familiar">Terapia Familiar</option>
-                        <option value="talleres-terapeuticos">Talleres Terapéuticos</option>
-                        <option value="consulta-general">Consulta General</option>
+                        <option value="Psicología Infantil">Psicología Infantil</option>
+                        <option value="Fisioterapia">Fisioterapia</option>
+                        <option value="Terapia de Lenguaje">Terapia de Lenguaje</option>
+                        <option value="Terapia Ocupacional">Terapia Ocupacional</option>
+                        <option value="Estimulación Temprana">Estimulación Temprana</option>
+                        <option value="Terapia Familiar">Terapia Familiar</option>
+                        <option value="Talleres Terapéuticos">Talleres Terapéuticos</option>
+                        <option value="Consulta General">Consulta General</option>
                       </select>
                     </div>
 
@@ -228,7 +257,7 @@ export const ContactUs = () => {
                         className="form-control" 
                         name="subject" 
                         placeholder="Asunto del Mensaje" 
-                        required
+                      
                         value={formData.subject}
                         onChange={handleChange}
                       />
@@ -240,36 +269,34 @@ export const ContactUs = () => {
                         name="message" 
                         rows="6" 
                         placeholder="Cuéntanos sobre tu consulta o necesidad específica..." 
-                        required
+                       
                         value={formData.message}
                         onChange={handleChange}
                       ></textarea>
                     </div>
 
-                    <div className="col-12 text-center">
-                      {formStatus.loading && (
-                        <div className="loading">Enviando...</div>
-                      )}
+                   
+                     <div className="col-12 text-center">
                       {formStatus.error && (
-                        <div className="error-message">{formStatus.error}</div>
+                        <div className="alert alert-danger">{formStatus.error}</div>
                       )}
-                      {formStatus.success && (
-                        <div className="sent-message">
-                          ¡Tu mensaje ha sido enviado exitosamente! Nos pondremos en contacto contigo pronto.
+                      {formStatus.success && !showModal && (
+                        <div className="alert alert-success">
+                          ¡Tu mensaje ha sido enviado exitosamente!
                         </div>
                       )}
 
-                      <button 
-                        type="button" 
-                        className="btn" 
+
+                       <button
+                        type="submit"
+                        className="btn"
                         disabled={formStatus.loading}
-                        onClick={handleSubmit}
                       >
-                        Enviar Mensaje
+                        {formStatus.loading ? 'Enviando...' : 'Enviar Mensaje'}
                       </button>
                     </div>
                   </div>
-                </div>
+                </form>
               </div>
             </div>
 
@@ -313,6 +340,46 @@ export const ContactUs = () => {
           </div>
         </div>
       </section>
+{showModal && (
+  <div 
+    className="modal fade show" 
+    style={{ display: "block", background: "rgba(0,0,0,0.6)" }}
+  >
+    <div className="modal-dialog modal-dialog-centered">
+      <div className="modal-content" style={{ borderRadius: "20px", textAlign: "center", padding: "30px" }}>
+        
+        {/* Ícono check minimal */}
+        <div 
+          style={{
+            width: "80px",
+            height: "80px",
+            borderRadius: "50%",
+            background: "#4caf50",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto 20px"
+          }}
+        >
+          <i className="bi bi-check2" style={{ fontSize: "40px", color: "#fff" }}></i>
+        </div>
+
+        <h4 style={{ marginBottom: "10px", color: "#2e7d32" }}>¡Enviado con éxito!</h4>
+        <p style={{ color: "#555", fontSize: "15px" }}>
+          Hemos recibido tu mensaje y te contactaremos pronto.
+        </p>
+
+        <button 
+          className="btn btn-success mt-3 px-4"
+          style={{ borderRadius: "10px" }}
+          onClick={() => setShowModal(false)}
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </main>
   );
 }

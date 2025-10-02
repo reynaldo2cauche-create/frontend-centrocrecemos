@@ -81,17 +81,7 @@ export default function HomePage() {
               <div className="hero-image" data-aos="zoom-out" data-aos-delay="300">
                 <img src="/assets/img/index/hero.png" alt="Terapia y Bienestar" className="img-fluid" />
 
-                <div className="customers-badge">
-                  <div className="customer-avatars">
-                    <img src="/assets/img/avatar-1.webp" alt="Paciente 1" className="avatar" />
-                    <img src="/assets/img/avatar-2.webp" alt="Paciente 2" className="avatar" />
-                    <img src="/assets/img/avatar-3.webp" alt="Paciente 3" className="avatar" />
-                    <img src="/assets/img/avatar-4.webp" alt="Paciente 4" className="avatar" />
-                    <img src="/assets/img/avatar-5.webp" alt="Paciente 5" className="avatar" />
-                    <span className="avatar more">500+</span>
-                  </div>
-                  <p className="mb-0 mt-2">Más de 500 personas han confiado en nuestros servicios especializados</p>
-                </div>
+                
               </div>
             </div>
           </div>
@@ -278,7 +268,7 @@ export default function HomePage() {
           <div className="row g-5">
             <div className="col-lg-4" data-aos="fade-up" data-aos-delay="100">
               <div className="testimonial-item">
-                <img src="/assets/img/avatar-4.webp" className="testimonial-img" alt="¿Cuándo llevar al psicólogo?" />
+                <img src="videologo.png" className="testimonial-img" alt="¿Cuándo llevar al psicólogo?" />
                 <h3>¿Cuándo debo llevar a mi hijo al psicólogo?</h3>
                 <h4>Psicología Infantil</h4>
                 <div className="stars">
@@ -296,7 +286,7 @@ export default function HomePage() {
 
             <div className="col-lg-4" data-aos="fade-up" data-aos-delay="200">
               <div className="testimonial-item">
-                <img src="/assets/img/avatar-1.webp" className="testimonial-img" alt="TEA - Signos de Alerta" />
+                <img src="videologo.png" className="testimonial-img" alt="TEA - Signos de Alerta" />
                 <h3>TEA - Signos de Alerta y Tratamiento</h3>
                 <h4>Trastorno del Espectro Autista</h4>
                 <div className="stars">
@@ -314,7 +304,7 @@ export default function HomePage() {
 
             <div className="col-lg-4" data-aos="fade-up" data-aos-delay="300">
               <div className="testimonial-item">
-                <img src="/assets/img/avatar-2.webp" className="testimonial-img" alt="Desarrollo del Lenguaje" />
+                <img src="videologo.png" className="testimonial-img" alt="Desarrollo del Lenguaje" />
                 <h3>Signos de Alerta en el Desarrollo del Lenguaje</h3>
                 <h4>Lic. Merlin Fernández</h4>
                 <div className="stars">
