@@ -1,25 +1,14 @@
-import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import AppRouter from './routes/AppRouter';
+import React from "react";
+import BasicLayout from "../layouts/BasicLayout";
+import HomePage from "../pages/HomePage";
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-  },
-});
-
-export const App = () => (
-  <ThemeProvider theme={theme}>
-    <CssBaseline />
-    <Router>
-      <AppRouter />
-    </Router>
-  </ThemeProvider>
-);
+export default function Home() {
+ 
+   return (
+    <div className="container mt-5">
+      <h1 className="text-primary">Hola Bootstrap</h1>
+      <button className="btn btn-success">Botón Bootstrap</button>
+    </div>
+  );
+  
+}

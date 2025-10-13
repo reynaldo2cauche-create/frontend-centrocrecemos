@@ -10,7 +10,8 @@ const RegistroPacientePage = () => {
         backgroundColor: '#eaf2fb',
         display: 'flex',
         alignItems: 'center',
-        py: { xs: 2, md: 0 },
+       pt: { xs: '70px', md: '90px' },
+        
       }}
     >
       <Container maxWidth="lg">
