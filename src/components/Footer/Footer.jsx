@@ -1,241 +1,137 @@
-import { FacebookOutlined, Instagram, YouTube } from '@mui/icons-material';
-import { Box, Dialog, DialogContent, DialogTitle, Divider, Grid, Link, TextField, Typography, styled, Button } from '@mui/material';
-import { GridInfoDetailFooter, GridInfoLogoFooter, GridInfoSocialFooter } from './constants';
-import { FontSize, ThemePalette } from '../../theme/theme';
-import { CButton } from '../Button';
-import { useForm } from 'react-hook-form';
-import { useState } from 'react';
-import emailjs from "@emailjs/browser";
+import React from 'react';
+import {
+  Box,
+  Container,
+  Grid,
+  Typography,
+  Link,
+  IconButton,
+  Divider
+} from '@mui/material';
+import {
+  Facebook,
+  Instagram,
+  YouTube,
+
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { DialogRegistroPaciente } from '../DialogRegistroPaciente/DialogRegistroPaciente';
-import WizardRegistroPaciente from '../WizzardRegistroPaciente/WizzardRegistroPaciente';
-import CloseIcon from '@mui/icons-material/Close';
 
-const defaultValues = {
-  name: "",
-  phone: "",
-  email: "",
-  message: "Mensaje del formulairio Unete a nuestro equipo"
-};
-
-const msgRequired = "Este campo es requerido";
-
-export const Footer = () => {
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSendEmail, setIsSendEmail] = useState(false);
-  const [errorSendEmail, setErrorSendEmail] = useState(false);
-
-  const [showWizard, setShowWizard] = useState(false);
-
-  const handleStartWizard = () => setShowWizard(true)
-
+export default function Footer() {
   const navigate = useNavigate();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset
-  } = useForm({ defaultValues });
-
-  const onSubmit = (data, e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    emailjs
-      .sendForm(
-        "gmail",
-        "template_3wvi4b9",
-        e.target,
-        "SX4oS1TmEUndpmixK"
-      )
-      .then(
-        (result) => {
-          setIsLoading(false);
-          setIsSendEmail(true);
-          reset(defaultValues);
-        },
-        (error) => {     
-          console.log('error', error)     
-          setIsLoading(false);
-          setErrorSendEmail(true);
-          reset(defaultValues);
-        }
-      );
-  }
-
+ 
   return (
-    <>
-      <Box marginTop='20px' p='20px 50px' component="footer" bgcolor={ThemePalette.PURPLE_LIGHT} display='flex' flexDirection='column'>
-        <Box 
-          display='flex' 
-          gap='20px'  
-          color={ThemePalette.WHITE} 
-          justifyContent='space-between' 
-          sx={{
-            flexDirection: { xs: 'column', sm: 'row' }, // Cambia a columna en pantallas pequeñas
-            alignItems: { xs: 'flex-start', sm: 'flex-start' }, // Alinea todo a la izquierda
-            rowGap: { xs: '20px', sm: '0' } // Añade separación en pantallas pequeñas
-          }}
-        >
-          {/* Sección 1 */}
-          <Box rowGap='2px' display='flex' flexDirection='column' gap='10px' flex={1}>
-            <Typography component="h4" color={ThemePalette.WHITE} fontWeight='bold' fontSize={FontSize.FOOTER_TITLE}>
-              DONDE ESTAMOS
-            </Typography>
-            <Typography component="p" color={ThemePalette.WHITE} pr='15px' fontSize={FontSize.FOOTER_TEXT}>
-              Puedes Visitar nuestras instalaciones en la siguiente dirección:
-            </Typography>
-            <Typography component="p" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}>
-              Calle 48 Nro. 234 Urbanización El Pinar, Comas 15316
-            </Typography>
-            <Box display='flex' flexDirection='column' gap='5px'>
-              <Box>
-                <Typography component="h6" color={ThemePalette.WHITE} fontWeight='500' pt='15px' fontSize={FontSize.FOOTER_TEXT}>
-                  HORARIO DE ATENCIÓN:
-                </Typography>
-                <Typography component="p" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}>
-                  Lunes - Viernes: 11:00 am - 8:00 pm
-                </Typography>
-                <Typography component="p" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}>
-                  Sab: 8:00 am - 2:00 pm
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Sección 2 */}
-          <Box rowGap='12px' display='flex' flexDirection='column' flex={1}>
-            <Typography component="h4" color={ThemePalette.WHITE} fontWeight='bold' fontSize={FontSize.FOOTER_TITLE}>
-              SERVICIOS
-            </Typography>
-            <Box display='flex' flexDirection='column' gap='2px'>
-              <Typography component="span" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}
-                onClick={() => navigate('/area-infantil-adolescentes')} sx={{ cursor: 'pointer' }}
-              >
-                Área Infantil y Adolescentes
-              </Typography>
-              <Typography component="span" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}
-                onClick={() => navigate('/area-adultos')} sx={{ cursor: 'pointer' }}
-              >
-                Área Adultos
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Sección 3 */}
-          <Box rowGap='12px' display='flex' flexDirection='column' flex={1}>
-            <Typography component="h4" color={ThemePalette.WHITE} fontWeight='bold' fontSize={FontSize.FOOTER_TITLE}>
-              Legales
-            </Typography>
-            <Box display='flex' flexDirection='column' gap='2px'>
-              {/* <Typography component="span" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}
-                onClick={handleStartWizard}  sx={{ cursor: 'pointer' }}
-              > */}
-              <Typography component="span" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}
-                onClick={() => navigate('/registro-paciente')} sx={{ cursor: 'pointer' }}
-              >
-                Registro de Paciente
-              </Typography>
-              <Typography component="span" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}
-                onClick={() => navigate('/trabaja-nosotros')} sx={{ cursor: 'pointer' }}
-              >
-                Trabaja con Nosotros
-              </Typography>
-              <Typography component="span" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}
-                onClick={() => navigate('/terminos-condiciones')} sx={{ cursor: 'pointer' }}
-              >
-                Términos y Condiciones
-              </Typography>
-              <Typography component="span" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}
-                onClick={() => navigate('/terminos-condiciones')} sx={{ cursor: 'pointer' }}
-              >
-                Política de Privacidad
-              </Typography>
-              <Typography component="span" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}
-                onClick={() => navigate('/terminos-condiciones')} sx={{ cursor: 'pointer' }}
-              >
-                Reglamento Interno para Clientes
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Sección 4 */}
-          <Box rowGap='12px' display='flex' flexDirection='column' flex={1}>
-            <Typography component="h4" color={ThemePalette.WHITE} fontWeight='bold' fontSize={FontSize.FOOTER_TITLE}>
-              Contáctanos
-            </Typography>
-            <Box display='flex' flexDirection='column' gap='2px'>
-              <Typography component="p" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}>
-                <a href="tel:+51957064401" style={{ color: "inherit", textDecoration: "none" }}>
-                  +51 957064401
+    <footer id="footer" className="footer">
+      <div className="footer-top">
+        <div className="container">
+          <div className="row gy-4">
+            
+            {/* Columna 1: Información */}
+            <div className="col-lg-3 col-md-6 footer-about">
+              <a href="/" className="logo d-flex align-items-center">
+                <img src="/logo-text-short.png" alt="Crecemos Logo" />
+              </a>
+              <div className="footer-contact pt-3">
+                <p>Calle 48 Nro. 234 Urbanización El Pinar, Comas 15316</p>
+                <p>Lima, Perú</p>
+                <p>
+                  <strong>WhatsApp:</strong>{' '}
+                  <a href="tel:+51957064401">
+                    <span>+51 957 064 401</span>
+                  </a>
+                </p>
+                <p>
+                  <strong>Email:</strong>
+                  <a href="mailto:info@crecemos.com.pe?subject=Consulta%20desde%20la%20web&body=Hola,%20quisiera%20más%20información%20sobre...">
+                    {' '}<span>info@crecemos.com.pe</span>
+                  </a>
+                </p>
+              </div>
+              <div className="social-links d-flex mt-4">
+                <a href="https://www.facebook.com/CentrodeTerapiasCrecemos" target="_blank" rel="noopener noreferrer">
+                  <i className="bi bi-facebook" />
                 </a>
-              </Typography>
-              <Typography component="p" color={ThemePalette.WHITE} fontSize={FontSize.FOOTER_TEXT}>
-                <a href="mailto:info@crecemos.com.pe" style={{ color: "inherit", textDecoration: "none" }}>
-                  info@crecemos.com.pe
+                <a href="https://www.instagram.com/centro_crecemos/" target="_blank" rel="noopener noreferrer">
+                  <i className="bi bi-instagram" />
                 </a>
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
+                <a href="https://www.youtube.com/@centrodeterapiacrecemos677" target="_blank" rel="noopener noreferrer">
+                  <i className="bi bi-youtube" />
+                </a>
+                <a href="https://www.tiktok.com/@centrocrecemos" target="_blank" rel="noopener noreferrer">
+                  <i className="bi bi-tiktok" />
+                </a>
+              </div>
+            </div>
 
-        {/* Divider y Copyright */}
-        <Divider sx={{ backgroundColor: ThemePalette.WHITE, margin: '10px 0px' }} />
-        <Box display='flex' justifyContent='space-between' alignItems='center' flexDirection={{ xs: 'column', sm: 'row' }} rowGap={2}>
-          <Typography color={ThemePalette.WHITE} textAlign={{ xs: 'center', sm: 'left' }}>
-            Copyright 2024 - Todos los derechos reservados
-          </Typography>
-          <Box display='flex' gap={2} alignItems='center' justifyContent={{ xs: 'center', sm: 'flex-end' }} pr='25px'>
-            <Link target="_blank" href="https://www.facebook.com/CentrodeTerapiasCrecemos" rel="noopener" color={ThemePalette.WHITE}>
-              <FacebookOutlined fontSize='large'  />
-            </Link>
-            <Link target="_blank" href="https://www.instagram.com/centro_crecemos" rel="noreferrer" color={ThemePalette.WHITE}>
-              <Instagram fontSize='large' />
-            </Link>
-            <Link target="_blank" href="https://www.youtube.com/@centrodeterapiacrecemos677" rel="noreferrer" color={ThemePalette.WHITE}>
-              <YouTube fontSize='large' />
-            </Link>
-            <a target="_blank" href="https://www.tiktok.com/@centrocrecemos">
-              <img src='./icon_tiktok.svg' alt='TikTok' width="30" height="30" />
-            </a>
-          </Box>
-        </Box>
-      </Box>
+            {/* Columna 2: Enlaces */}
+            <div className="col-lg-3 col-md-6 footer-links">
+              <h4>Enlaces Útiles</h4>
+              <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/nosotros">Nosotros</a></li>
+                <li><a href="/servicios">Servicios</a></li>
+                <li><a href="/staff">Especialistas</a></li>
+                <li><a href="/contactanos">Contacto</a></li>
+              </ul>
+            </div>
 
-      {/* <DialogRegistroPaciente open={showRegistroPacienteModal} handleClose={() => setShowRegistroPacienteModal(false)} /> */}
-      
-      <Dialog open={showWizard} fullWidth maxWidth="md">
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          Formulario de Registro
-          <Button
-            onClick={() => {
-              console.log('cerrando wizard');
-              setShowWizard(false);
-            }}
-            sx={{
-              minWidth: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              padding: 0,
-              color: 'gray',
-              backgroundColor: 'transparent',
-              '&:hover': {
-                backgroundColor: 'rgba(0,0,0,0.07)'
-              }
-            }}
-          >
-            <CloseIcon />
-          </Button>
-        </DialogTitle>
-        <DialogContent>
-          <WizardRegistroPaciente onClose={() => {
-            console.log('cerrando wizard')
-            setShowWizard(false);
-          }} />
-        </DialogContent>
-      </Dialog>
-    </>
-  )
-  
+            {/* Columna 3: Horarios */}
+            <div className="col-lg-3 col-md-6 footer-links">
+              <h4>Horarios de Atención</h4>
+              <ul>
+                <li>Lunes - Viernes: 11:00 AM - 8:00 PM</li>
+                <li>Sábados: 8:00 AM - 2:00 PM</li>
+                <li>Domingos: Cerrado</li>
+              </ul>
+            </div>
+
+            {/* Columna 4: Legales */}
+              <div className="col-lg-3 col-md-6 footer-links">
+              <h4>Legales</h4>
+              <ul>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/registro-paciente'); }}>
+                    Registro de Paciente
+                  </a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/mantenimiento'); }}>
+                    Trabaja con Nosotros
+                  </a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/terminos-condiciones'); }}>
+                    Términos y Condiciones
+                  </a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/politica-privacidad'); }}>
+                    Política de Privacidad
+                  </a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/reglamento-interno'); }}>
+                    Reglamento Interno para Clientes
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div className="container copyright text-center mt-4">
+        <p>
+          © <span>Copyright</span> <strong className="px-1 sitename">Centro Crecemos</strong>{' '}
+          <span>Todos los derechos reservados</span>
+        </p>
+        <div className="credits">
+          Desarrollado por Vaxa |{' '}
+          <a href="https://www.vaxa.com.pe" target="_blank" rel="noopener noreferrer">
+            www.vaxa.com.pe
+          </a>
+        </div>
+      </div>
+    </footer>
+  );
 }

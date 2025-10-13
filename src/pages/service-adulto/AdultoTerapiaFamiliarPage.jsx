@@ -1,189 +1,237 @@
 import React from 'react'
-import { Typography, Grid, Box, Button, List, ListItem, ListItemIcon, ListItemText, Card, useMediaQuery } from '@mui/material';
-import { WhatsApp, CheckCircle } from '@mui/icons-material';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import { ThemePalette } from '../../theme/theme';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
-const itemData = [
-  {
-    id: '1',
-    img: '/linda-samanez.png',
-    title: 'Lic. Linda Samanez',
-    profession: 'Psicología',
-  }  
-];
+import  {initializePageScripts}  from '../../utils/initScripts';
 
-export const AdultoTerapiaFamiliarPage = () => {
+ const AdultoTerapiaFamiliarPage = () => {
 
-  const isMobile = useMediaQuery('(max-width:600px)'); // Detecta pantallas móviles
+    useEffect(() => {
+          initializePageScripts();
+        }, []); 
 
-  return (
-    <Box sx={{ pt: 2, pb: 4, maxWidth: '100%', overflowX: 'hidden', padding: 0 }}>
-      {/* Background image */}
-      <Box
-        sx={{
-          width: '100%',
-          minHeight: '50vh',
-          height: 'auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-        }}
-      >
-        <img
-          src={isMobile ? 'fondo-ter-fam-mov.png' : 'fondo-terapia-familia.png'}
-          alt="Terapia de Lenguaje"
-          style={{
-            width: '100%',
-            height: 'auto',
-            maxHeight: '90vh',
-            objectFit: 'cover',
-          }}
-        />
+    return (
+    <main>
+      {/* Título */}
+      <div className="page-title page-title-custom" data-aos="fade">
+        <span className="bubble bubble1"></span>
+        <span className="bubble bubble2"></span>
+        <span className="bubble bubble3"></span>
 
-        {/* Botón flotante */}
-        <Button
-          variant="contained"
-          sx={{
-            position: 'absolute',
-            bottom: 20,
-            right: 20,
-            backgroundColor: '#FFC107',
-            color: '#000',
-            fontWeight: 'bold',
-            '&:hover': {
-              backgroundColor: '#FFA000',
-            },
-          }}
-          startIcon={<WhatsApp />}
-          onClick={() => window.open('https://api.whatsapp.com/send?phone=+51957064401&text=%F0%9F%8F%A1%20%C2%A1Hola!%20Me%20gustar%C3%ADa%20informaci%C3%B3n%20sobre%20la%20terapia%20familiar.', '_blank')}
-        >
-          Reservar Cita
-        </Button>
-      </Box>
+        <div className="container text-center">
+          <h1 className="section-title text-center">Terapia Familiar</h1>
+          <p className="page-subtitle">
+            Ofrecemos un espacio seguro para familias con dificultades en la
+            comunicación o conflictos internos. Buscamos fortalecer los lazos y
+            promover una convivencia armoniosa con el apoyo de especialistas.
+          </p>
+          <nav className="breadcrumbs mt-3">
+            <ol>
+              <li><Link to="/">Inicio</Link></li>
+              <li><Link to="/servicios">Servicios</Link></li>
+              <li className="current">Terapia Familiar</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
 
-      {/* SECCIÓN DE PSICOTERAPIA INDIVIDUAL */}
-      <Box sx={{ textAlign: 'left', mt: 4, px: 3, pt: 4, maxWidth: '800px', margin: 'auto' }}>
-        {/* TÍTULO PRINCIPAL EN NEGRITA */}
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#F57C00', mb: 1 }}>
-          Terapia de Familia
-        </Typography>
-        <Typography sx={{ fontSize: '16px', color: '#333' }}>
-          La terapia de familia ayuda a fortalecer los lazos familiares, mejorar la comunicación y resolver conflictos que afectan la convivencia. Es un espacio seguro donde cada miembro puede expresar sus emociones y trabajar en soluciones conjuntas.
-        </Typography>
+      {/* Sección de Tabs */}
+      <section id="terapia-familiar" className="features section">
+        <div className="container">
+          <div className="d-flex justify-content-center">
+            <ul className="nav nav-tabs" data-aos="fade-up" data-aos-delay="100">
+              <li className="nav-item">
+                <a
+                  className="nav-link active show"
+                  data-bs-toggle="tab"
+                  data-bs-target="#familiar-tab-1"
+                >
+                  <h4>¿Qué es la Terapia Familiar?</h4>
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  className="nav-link"
+                  data-bs-toggle="tab"
+                  data-bs-target="#familiar-tab-2"
+                >
+                  <h4>¿Cuándo acudir?</h4>
+                </a>
+              </li>
+              <li className="nav-item">
+                <a
+                  className="nav-link"
+                  data-bs-toggle="tab"
+                  data-bs-target="#familiar-tab-3"
+                >
+                  <h4>¿Cómo trabajamos?</h4>
+                </a>
+              </li>
+            </ul>
+          </div>
 
-        {/* CUÁNDO ACUDIR A TERAPIA */}
-        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#F57C00', mt: 3, mb: 1 }}>
-          ¿Cuándo acudir a terapia de familia?
-        </Typography>
+          <div className="tab-content" data-aos="fade-up" data-aos-delay="200">
+            {/* Qué es */}
+            <div className="tab-pane fade active show" id="familiar-tab-1">
+              <div className="row">
+                <div className="col-lg-6 d-flex flex-column justify-content-center">
+                  <h3>Terapia Familiar</h3>
+                  <p className="fst-italic">
+                    La terapia de familia ayuda a fortalecer los lazos
+                    familiares, mejorar la comunicación y resolver conflictos
+                    que afectan la convivencia. Es un espacio seguro donde cada
+                    miembro puede expresar sus emociones y trabajar en
+                    soluciones conjuntas.
+                  </p>
+                  <p>
+                    💻 Sesiones <strong>presenciales</strong> y{" "}
+                    <strong>virtuales</strong> disponibles para mayor comodidad.
+                  </p>
+                  <p
+                    className="fw-bold fst-italic"
+                    style={{ color: "var(--accent-color)" }}
+                  >
+                    ✨ ¡Fortalezcamos juntos los lazos familiares! Agenda tu
+                    consulta hoy mismo. 💙
+                  </p>
+                </div>
+                <div className="col-lg-6 text-center">
+                  <img
+                    src="/assets/img/servicios/queesterapiafamiliar.jpg"
+                    alt="Terapia Familiar"
+                    className="img-fluid"
+                  />
+                </div>
+              </div>
+            </div>
 
-        <List dense>
-          {[
-            'Problemas de comunicación o discusiones frecuentes.',
-            'Cambios importantes como divorcio, mudanza o pérdida de un ser querido.',
-            'Dificultades en la crianza de los hijos.',
-            'Conflictos entre hermanos o familiares cercanos.',
-            'Situaciones de estrés, ansiedad o depresión en algún miembro de la familia.',
-          ].map((item, index) => (
-            <ListItem key={index} disableGutters sx={{ display: 'flex', alignItems: 'center' }}>
-              <CheckCircle sx={{ color: '#7CB342', fontSize: 20, mr: 1 }} />
-              <ListItemText 
-                primary={item} 
-                primaryTypographyProps={{ sx: { fontSize: '16px' } }} 
-              />
-            </ListItem>
-          ))}
-        </List>
+            {/* Cuándo acudir */}
+            <div className="tab-pane fade" id="familiar-tab-2">
+              <div className="row">
+                <div className="col-lg-6 d-flex flex-column justify-content-center">
+                  <h3>¿Cuándo acudir a terapia de familia?</h3>
+                  <ul>
+                    <li>
+                      <i className="bi bi-check2-all"></i> Problemas de
+                      comunicación o discusiones frecuentes.
+                    </li>
+                    <li>
+                      <i className="bi bi-check2-all"></i> Cambios importantes
+                      como divorcio, mudanza o pérdida de un ser querido.
+                    </li>
+                    <li>
+                      <i className="bi bi-check2-all"></i> Dificultades en la
+                      crianza de los hijos.
+                    </li>
+                    <li>
+                      <i className="bi bi-check2-all"></i> Conflictos entre
+                      hermanos o familiares cercanos.
+                    </li>
+                    <li>
+                      <i className="bi bi-check2-all"></i> Situaciones de
+                      estrés, ansiedad o depresión en algún miembro de la
+                      familia.
+                    </li>
+                  </ul>
+                </div>
+                <div className="col-lg-6 text-center">
+                  <img
+                    src="/assets/img/servicios/cuandoirterapiafamiliar.jpg"
+                    alt="Cuándo acudir a Terapia Familiar"
+                    className="img-fluid"
+                  />
+                </div>
+              </div>
+            </div>
 
-        {/* CÓMO TE AYUDAMOS */}
-        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#F57C00', mt: 3, mb: 1 }}>
-          ¿Cómo trabajamos?
-        </Typography>
+            {/* Cómo trabajamos */}
+            <div className="tab-pane fade" id="familiar-tab-3">
+              <div className="row">
+                <div className="col-lg-6 d-flex flex-column justify-content-center">
+                  <h3>¿Cómo trabajamos?</h3>
+                  <ul>
+                    <li>
+                      <i className="bi bi-check2-all"></i> Evaluación de la
+                      dinámica familiar y sus desafíos.
+                    </li>
+                    <li>
+                      <i className="bi bi-check2-all"></i> Técnicas para mejorar
+                      la comunicación y la resolución de conflictos.
+                    </li>
+                    <li>
+                      <i className="bi bi-check2-all"></i> Estrategias para
+                      fortalecer la unión y la empatía en la familia.
+                    </li>
+                    <li>
+                      <i className="bi bi-check2-all"></i> Acompañamiento
+                      emocional para adaptarse a los cambios.
+                    </li>
+                  </ul>
+                  <div className="mt-4">
+                    <p>
+                      <i className="bi bi-calendar-check-fill"></i> Reserva tu
+                      cita ahora mismo y comienza tu proceso de cambio.
+                    </p>
+                    <a
+                      href="https://api.whatsapp.com/send?phone=+51957064401&text=Hola,%20me%20gustaría%20información%20sobre%20la%20terapia%20familiar."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-warning fw-bold mt-2"
+                    >
+                      <i className="bi bi-whatsapp"></i> Reservar Cita
+                    </a>
+                  </div>
+                </div>
+                <div className="col-lg-6 text-center">
+                  <img
+                    src="/assets/img/servicios/procesoterapiafamiliar.jpg"
+                    alt="Cómo trabajamos en Terapia Familiar"
+                    className="img-fluid"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        <List dense>
-          {[
-            'Evaluación de la dinámica familiar y sus desafíos.',
-            'Técnicas para mejorar la comunicación y la resolución de conflictos.',
-            'Estrategias para fortalecer la unión y la empatía en la familia.',
-            'Acompañamiento emocional para adaptarse a los cambios.',
-          ].map((item, index) => (
-            <ListItem key={index} disableGutters sx={{ display: 'flex', alignItems: 'center' }}>
-              <FiberManualRecordIcon sx={{ color: '#03A9F4', fontSize: 12, mr: 1 }} />
-              <ListItemText 
-                primary={item} 
-                primaryTypographyProps={{ sx: { fontSize: '16px' } }} 
-              />
-            </ListItem>
-          ))}
-        </List>
+      {/* Profesionales */}
+      <section id="team" className="team-area section-padding" data-aos="fade-up">
+        <div className="container">
+          <div className="section-title text-center">
+            <h2>Profesionales</h2>
+            <p>
+              Conoce a las especialistas encargadas de brindar las terapias
+              familiares.
+            </p>
+          </div>
 
-        {/* SESIONES DISPONIBLES */}
-
-        <Typography
-          sx={{
-            fontSize: '16px',
-            mt: 3,
-          }}
-        >
-          💻 Sesiones presenciales y virtuales disponibles para mayor comodidad.
-        </Typography>
-
-        {/* MENSAJE FINAL */}
-        <Typography
-          sx={{
-            fontSize: '16px',
-            mt: 3,
-          }}
-        >
-          ✨ ¡Fortalezcamos juntos los lazos familiares! Agenda tu consulta hoy mismo. 💙
-        </Typography>
-      </Box>
-      
-      <Typography variant="h5" gutterBottom textAlign="center" sx={{ fontWeight: 'bold', mb: 3, mt: 3 }} 
-        color={ThemePalette.PURPLE_LIGHT}>
-        Profesionales
-      </Typography>
-
-      <Grid container spacing={4} justifyContent="center" p='15px 50px 41px'>
-        {itemData.map((prof) => (
-          <Grid item xs={12} sm={6} md={4} key={prof.id}>
-            <Card
-              sx={{
-                textAlign: 'center',
-                p: 3,
-                boxShadow: 3,
-                borderRadius: 3,
-                backgroundColor: '#ffffff', // Fondo sutil
-                transition: '0.3s',
-                '&:hover': { boxShadow: 6 } // Efecto al pasar el cursor
-              }}
-            >
-              <Box
-                component="img"
-                src={prof.img}
-                alt={prof.title}
-                sx={{
-                  width: 260, // Mejor proporción
-                  height: 300, // Más alto
-                  borderRadius: '16px', // Bordes suavizados
-                  mb: 2,
-                  objectFit: 'cover', // Evita que la imagen se deforme
-                  border: '1px solid #e0e0e0' // Borde más sutil
-                }}
-              />
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#333' }}>
-                {prof.title}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {prof.profession}
-              </Typography>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-
-    </Box>
+          <div className="row justify-content-center">
+            {/* Lic. Giselle Burgos */}
+            <div className="col-lg-4 col-md-6 col-sm-12">
+              <div className="our-team">
+                <img
+                  src="/assets/img/servicios/Lic. Giselle (1).png"
+                  alt="Lic. Giselle Burgos"
+                  style={{ height: "300px" }}
+                />
+                <div className="team-content">
+                  <h3 className="title">Lic. Giselle Burgos</h3>
+                  <span className="post">Psicología</span>
+                  <div className="credential-info">
+                    <i className="bi bi-award-fill"></i>
+                    <span className="credential-label">CPsP:</span>
+                    <span className="credential-number">66683</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   );
+
 };
+
+export default AdultoTerapiaFamiliarPage;
