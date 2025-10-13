@@ -1,0 +1,35 @@
+import api from './api';
+
+export const listarCitas = async (params = {}) => {
+  const queryParams = new URLSearchParams();
+  
+  // Agregar parámetros si existen
+  if (params.terapeuta_id) {
+    queryParams.append('terapeuta_id', params.terapeuta_id);
+  }
+  
+  const url = queryParams.toString() ? `/citas?${queryParams.toString()}` : '/citas';
+  const response = await api.get(url);
+  return response.data;
+};
+
+export const crearCita = async (citaData) => {
+  const response = await api.post('/citas', citaData);
+  return response.data;
+};
+
+export const actualizarCita = async (id, citaData) => {
+  const response = await api.patch(`/citas/${id}`, citaData);
+  return response.data;
+};
+
+export const eliminarCita = async (id) => {
+  const response = await api.delete(`/citas/${id}`);
+  return response.data;
+};
+
+export const getCitaById = async (id) => {
+  const response = await api.get(`/citas/${id}`);
+  return response.data;
+};
+

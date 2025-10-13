@@ -1,5 +1,10 @@
 import api from './api';
 
+export const buscarPacientes = async (query) => {
+  const response = await api.get(`/pacientes/buscar?q=${encodeURIComponent(query)}`);
+  return response.data;
+};
+
 export const getPacientes = async (url = '/pacientes') => {
   const response = await api.get(url);
   return response.data;

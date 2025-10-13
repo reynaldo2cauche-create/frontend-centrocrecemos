@@ -44,4 +44,15 @@ export const getTrabajadorById = async (id) => {
 export const updateTrabajador = async (id, data) => {
   const response = await api.patch(`/trabajadores/${id}`, data);
   return response.data;
+};
+
+// Obtener lista de trabajadores para select
+export const getTrabajadoresSelect = async () => {
+  try {
+    const response = await api.get('/trabajadores/select');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener trabajadores:', error);
+    throw error;
+  }
 }; 

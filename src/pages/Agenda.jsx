@@ -2,183 +2,277 @@ import React, { useState } from 'react';
 import { 
   Box, 
   Typography, 
-  Paper, 
-  Grid, 
   Button,
-  Chip,
   IconButton,
   Fab,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import { 
   Add as AddIcon,
   CalendarToday as CalendarIcon,
-  AccessTime as TimeIcon,
-  Person as PersonIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
   ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon
+  ChevronRight as ChevronRightIcon
 } from '@mui/icons-material';
+
+// Componentes
+import ModalAgendarCita from '../components/Agenda/ModalAgendarCita';
+import CalendarioSemanal from '../components/Agenda/CalendarioSemanal';
+
+// Datos y utilidades
+import { 
+  diasSemana, 
+  horas, 
+  servicios, 
+  duraciones,
+  citasEjemplo
+} from '../constants/agendaData';
+import { getEstadoColor, getEstadoIcon } from '../utils/agendaUtils';
+import { useCitas } from '../hooks/useCitas';
+import { useCurrentUser } from '../hooks/useCurrentUser';
+import { useTrabajadores } from '../hooks/useTrabajadores';
+import { ROLES } from '../constants/roles';
 
 const Agenda = () => {
   const [fechaActual, setFechaActual] = useState(new Date());
-  
-  // Datos de ejemplo para la agenda - vista semanal
-  const citas = [
-    {
-      id: 1,
-      paciente: 'María González',
-      terapeuta: 'Dr. Juan Pérez',
-      fecha: '2024-01-15',
-      hora: '09:00',
-      duracion: 60,
-      tipo: 'Terapia Individual',
-      estado: 'Confirmada',
-      dia: 'Lunes'
-    },
-    {
-      id: 2,
-      paciente: 'Carlos López',
-      terapeuta: 'Dra. Ana Martínez',
-      fecha: '2024-01-16',
-      hora: '10:30',
-      duracion: 45,
-      tipo: 'Evaluación',
-      estado: 'Pendiente',
-      dia: 'Martes'
-    },
-    {
-      id: 3,
-      paciente: 'Sofia Rodríguez',
-      terapeuta: 'Dr. Miguel Torres',
-      fecha: '2024-01-17',
-      hora: '14:00',
-      duracion: 90,
-      tipo: 'Terapia Familiar',
-      estado: 'Confirmada',
-      dia: 'Miércoles'
-    },
-    {
-      id: 4,
-      paciente: 'Romeo Prueba',
-      terapeuta: 'Dr. Juan Pérez',
-      fecha: '2024-01-17',
-      hora: '09:00',
-      duracion: 60,
-      tipo: 'Evaluación',
-      estado: 'Confirmada',
-      dia: 'Miércoles'
-    },
-    {
-      id: 5,
-      paciente: 'Homero Prueba',
-      terapeuta: 'Dra. Ana Martínez',
-      fecha: '2024-01-17',
-      hora: '11:00',
-      duracion: 60,
-      tipo: 'Terapia Individual',
-      estado: 'Confirmada',
-      dia: 'Miércoles'
-    }
-  ];
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [slotSeleccionado, setSlotSeleccionado] = useState(null);
+  const [terapeutaFiltro, setTerapeutaFiltro] = useState('');
+  const [formularioCita, setFormularioCita] = useState({
+    paciente: null,
+    doctor_id: '',
+    servicio_id: '',
+    motivo_id: '',
+    duracion: '',
+    fecha: '',
+    horaInicio: '',
+    nota: ''
+  });
 
-  // Días de la semana
-  const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  // Obtener usuario actual
+  const currentUser = useCurrentUser();
   
-  // Horas del día (9 AM a 6 PM)
-  const horas = [
-    '9:00', '9:30', '10:00', '10:30', '11:00', '11:30',
-    '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
-    '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'
-  ];
-
-  const getEstadoColor = (estado) => {
-    switch (estado) {
-      case 'Confirmada':
-        return '#4caf50';
-      case 'Pendiente':
-        return '#ff9800';
-      case 'Cancelada':
-        return '#f44336';
-      default:
-        return '#757575';
+  // Hook de trabajadores (para el filtro de terapeutas)
+  const { trabajadores } = useTrabajadores();
+  
+  // Debug: Ver datos de trabajadores
+  React.useEffect(() => {
+    if (trabajadores.length > 0) {
+      console.log('Trabajadores cargados:', trabajadores);
+      console.log('Primer trabajador:', trabajadores[0]);
     }
+  }, [trabajadores]);
+  
+  // Hook de citas (listar + crear)
+  const { citas, loading, error, listarCitas, crearCita } = useCitas();
+  
+  // Cargar citas al montar y al cambiar de semana o filtro
+  React.useEffect(() => {
+    // Si el usuario es terapeuta, filtrar por su ID
+    if (currentUser?.rol?.id === ROLES.TERAPEUTA) {
+      listarCitas({ terapeuta_id: currentUser.id });
+    } 
+    // Si es administrador y hay un terapeuta seleccionado en el filtro
+    else if (currentUser?.rol?.id === ROLES.ADMINISTRADOR && terapeutaFiltro) {
+      listarCitas({ terapeuta_id: terapeutaFiltro });
+    } 
+    // Caso general: listar todas las citas
+    else {
+      listarCitas();
+    }
+  }, [currentUser, terapeutaFiltro]);
+
+  // Handlers para el modal
+  const abrirModal = (dia, hora) => {
+    setSlotSeleccionado({ 
+      dia: dia.nombre, 
+      hora,
+      fecha: dia.fechaString 
+    });
+    setFormularioCita({
+      ...formularioCita,
+      fecha: dia.fechaString,
+      horaInicio: hora
+    });
+    setModalAbierto(true);
   };
 
-  const getEstadoIcon = (estado) => {
-    switch (estado) {
-      case 'Confirmada':
-        return <CheckCircleIcon sx={{ fontSize: 16, color: '#4caf50' }} />;
-      case 'Cancelada':
-        return <CancelIcon sx={{ fontSize: 16, color: '#f44336' }} />;
-      default:
-        return null;
-    }
+  const cerrarModal = () => {
+    setModalAbierto(false);
+    setSlotSeleccionado(null);
+    setFormularioCita({
+      paciente: null,
+      doctor_id: '',
+      servicio_id: '',
+      motivo_id: '',
+      duracion: '',
+      fecha: '',
+      horaInicio: '',
+      nota: ''
+    });
   };
 
-  // Función para obtener citas por día y hora
-  const getCitaEnSlot = (dia, hora) => {
-    return citas.find(cita => cita.dia === dia && cita.hora === hora);
+  const manejarCambioFormulario = (campo, valor) => {
+    setFormularioCita(prev => ({
+      ...prev,
+      [campo]: valor
+    }));
+  };
+
+  const guardarCita = async () => {
+    try {
+      console.log('Guardando cita:', formularioCita);
+      // Preparar datos para enviar al backend
+      const citaData = {
+        paciente_id: formularioCita.paciente?.id,
+        doctor_id: formularioCita.doctor_id,
+        servicio_id: formularioCita.servicio_id,
+        motivo_id: formularioCita.motivo_id,
+        fecha: formularioCita.fecha,
+        hora_inicio: formularioCita.horaInicio + ':00',
+        duracion_minutos: parseInt(formularioCita.duracion),
+        nota: formularioCita.nota,
+        user_id: currentUser?.id,
+        estado_id: 1
+      };
+
+      await crearCita(citaData);
+      cerrarModal();
+    } catch (error) {
+      console.error('Error al guardar cita:', error);
+      // Aquí podrías mostrar un mensaje de error al usuario
+    }
   };
 
   return (
     <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh', mt: { xs: 6, md: 7 } }}>
-      {/* Header con navegación */}
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <IconButton 
-            sx={{ 
-              backgroundColor: '#A3C644', 
-              color: 'white',
-              '&:hover': { backgroundColor: '#8fb23a' }
-            }}
-          >
-            <ChevronLeftIcon />
-          </IconButton>
-          <IconButton 
-            sx={{ 
-              backgroundColor: '#A3C644', 
-              color: 'white',
-              '&:hover': { backgroundColor: '#8fb23a' }
-            }}
-          >
-            <ChevronRightIcon />
-          </IconButton>
-          <Button
-            variant="contained"
-            startIcon={<CalendarIcon />}
-            sx={{
-              backgroundColor: '#A3C644',
-              '&:hover': { backgroundColor: '#8fb23a' },
-              px: 2,
-              py: 1,
-              borderRadius: 2,
-              fontWeight: 'bold',
-              textTransform: 'none'
-            }}
-          >
-            Hoy
-          </Button>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#424242' }}>
-            15 sep - 22 sep 2025
+      {/* Título de la página */}
+      <Box sx={{ mb: 3 }}>
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            color: '#424242', 
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2
+          }}
+        >
+          <CalendarIcon sx={{ color: '#A3C644', fontSize: 40 }} />
+          Agenda de Citas
+        </Typography>
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            color: '#757575', 
+            mt: 1,
+            fontSize: '1.1rem'
+          }}
+        >
+          Gestiona y organiza las citas de tus pacientes
+        </Typography>
+      </Box>
+
+      {/* Header con filtros y acciones */}
+      <Box sx={{ 
+        mb: 4, 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 2,
+        p: 3,
+        backgroundColor: '#ffffff',
+        borderRadius: 3,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        border: '1px solid rgba(163,198,68,0.1)'
+      }}>
+        {/* Lado izquierdo - Filtros */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+          <Typography variant="h6" sx={{ color: '#424242', fontWeight: 'bold', mr: 2 }}>
+            Filtros
           </Typography>
-        </Box>
-        
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          
+          {/* Filtro de Terapeuta - Solo para Administrador */}
+          {currentUser?.rol?.id === ROLES.ADMINISTRADOR && (
+            <FormControl 
+              sx={{ 
+                minWidth: 220,
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { 
+                    borderColor: '#A3C644',
+                    borderRadius: 2
+                  },
+                  '&:hover fieldset': { 
+                    borderColor: '#8fb23a',
+                    boxShadow: '0 0 0 2px rgba(163,198,68,0.1)'
+                  },
+                  '&.Mui-focused fieldset': { 
+                    borderColor: '#A3C644',
+                    boxShadow: '0 0 0 3px rgba(163,198,68,0.15)'
+                  }
+                },
+                '& .MuiInputLabel-root.Mui-focused': { 
+                  color: '#A3C644',
+                  fontWeight: 'bold'
+                }
+              }}
+            >
+              <InputLabel>Terapeuta</InputLabel>
+              <Select
+                value={terapeutaFiltro}
+                label="Terapeuta"
+                onChange={(e) => setTerapeutaFiltro(e.target.value)}
+                sx={{ 
+                  backgroundColor: '#fafafa',
+                  '& .MuiSelect-select': {
+                    py: 1.5
+                  }
+                }}
+              >
+                <MenuItem value="">
+                  <em>Todos los terapeutas</em>
+                </MenuItem>
+                {trabajadores && trabajadores.length > 0 ? (
+                  trabajadores
+                    .filter(t => {
+                      // Manejar diferentes estructuras: rol_id o rol.id
+                      const rolId = t.rol_id || t.rol?.id;
+                      return rolId === ROLES.TERAPEUTA;
+                    })
+                    .map((terapeuta) => (
+                      <MenuItem key={terapeuta.id} value={terapeuta.id}>
+                        {terapeuta.nombres} {terapeuta.apellidos}
+                      </MenuItem>
+                    ))
+                ) : (
+                  <MenuItem disabled>
+                    <em>Cargando terapeutas...</em>
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
+          )}
+          
           <Button
             variant="outlined"
             sx={{
               borderColor: '#A3C644',
               color: '#A3C644',
-              '&:hover': { borderColor: '#8fb23a', backgroundColor: 'rgba(163,198,68,0.08)' }
+              borderRadius: 2,
+              px: 3,
+              py: 1.5,
+              fontWeight: 'bold',
+              textTransform: 'none',
+              '&:hover': { 
+                borderColor: '#8fb23a', 
+                backgroundColor: 'rgba(163,198,68,0.08)',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 12px rgba(163,198,68,0.2)'
+              },
+              transition: 'all 0.2s ease-in-out'
             }}
           >
             Estado: Todos
@@ -188,22 +282,44 @@ const Agenda = () => {
             sx={{
               borderColor: '#A3C644',
               color: '#A3C644',
-              '&:hover': { borderColor: '#8fb23a', backgroundColor: 'rgba(163,198,68,0.08)' }
+              borderRadius: 2,
+              px: 3,
+              py: 1.5,
+              fontWeight: 'bold',
+              textTransform: 'none',
+              '&:hover': { 
+                borderColor: '#8fb23a', 
+                backgroundColor: 'rgba(163,198,68,0.08)',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 12px rgba(163,198,68,0.2)'
+              },
+              transition: 'all 0.2s ease-in-out'
             }}
           >
             Vista: Por semana
           </Button>
+        </Box>
+
+        {/* Lado derecho - Acciones */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             sx={{
               backgroundColor: '#A3C644',
-              '&:hover': { backgroundColor: '#8fb23a' },
-              px: 3,
-              py: 1.5,
               borderRadius: 2,
+              px: 4,
+              py: 1.5,
               fontWeight: 'bold',
-              textTransform: 'none'
+              textTransform: 'none',
+              fontSize: '1rem',
+              boxShadow: '0 4px 12px rgba(163,198,68,0.3)',
+              '&:hover': { 
+                backgroundColor: '#8fb23a',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 16px rgba(163,198,68,0.4)'
+              },
+              transition: 'all 0.2s ease-in-out'
             }}
           >
             Nueva Cita
@@ -212,97 +328,33 @@ const Agenda = () => {
       </Box>
 
       {/* Calendario semanal */}
-      <Paper sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-                <TableCell sx={{ width: '120px', fontWeight: 'bold', color: '#424242' }}>
-                  Hora
-                </TableCell>
-                {diasSemana.map((dia) => (
-                  <TableCell 
-                    key={dia} 
-                    sx={{ 
-                      fontWeight: 'bold', 
-                      color: '#424242',
-                      textAlign: 'center',
-                      backgroundColor: dia === 'Miércoles' ? '#e8f5e8' : 'transparent'
-                    }}
-                  >
-                    {dia} {dia === 'Miércoles' ? '17' : ''}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {horas.map((hora) => (
-                <TableRow key={hora} sx={{ height: '60px' }}>
-                  <TableCell 
-                    sx={{ 
-                      fontWeight: 'bold', 
-                      color: '#666',
-                      backgroundColor: '#f8f9fa',
-                      borderRight: '1px solid #e0e0e0'
-                    }}
-                  >
-                    {hora}
-                  </TableCell>
-                  {diasSemana.map((dia) => {
-                    const cita = getCitaEnSlot(dia, hora);
-                    return (
-                      <TableCell 
-                        key={`${dia}-${hora}`} 
-                        sx={{ 
-                          position: 'relative',
-                          backgroundColor: dia === 'Miércoles' ? '#f0f8f0' : 'transparent',
-                          border: '1px solid #e0e0e0',
-                          '&:hover': {
-                            backgroundColor: '#f5f5f5'
-                          }
-                        }}
-                      >
-                        {cita && (
-                          <Box
-                            sx={{
-                              position: 'absolute',
-                              top: 4,
-                              left: 4,
-                              right: 4,
-                              bottom: 4,
-                              backgroundColor: '#e3f2fd',
-                              border: `2px solid ${getEstadoColor(cita.estado)}`,
-                              borderRadius: 1,
-                              p: 1,
-                              display: 'flex',
-                              flexDirection: 'column',
-                              justifyContent: 'space-between',
-                              cursor: 'pointer',
-                              '&:hover': {
-                                backgroundColor: '#bbdefb'
-                              }
-                            }}
-                          >
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <Typography variant="caption" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-                                {cita.paciente}
-                              </Typography>
-                              {getEstadoIcon(cita.estado)}
-                            </Box>
-                            <Typography variant="caption" sx={{ color: '#666', fontSize: '0.7rem' }}>
-                              {cita.tipo}
-                            </Typography>
-                          </Box>
-                        )}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+      <CalendarioSemanal
+        horas={horas}
+        citas={citas}
+        onSlotClick={abrirModal}
+        onCitaClick={({ fecha, hora, cita }) => {
+          setSlotSeleccionado({ dia: '', hora, fecha });
+          setFormularioCita({
+            fecha,
+            horaInicio: hora,
+            // Crear objeto paciente con la estructura que espera el Autocomplete
+            paciente: cita.paciente_id ? {
+              id: cita.paciente_id,
+              nombre_completo: cita.paciente_nombre
+            } : null,
+            doctor_id: cita.doctor_id || '',
+            servicio_id: cita.servicio_id || '',
+            motivo_id: cita.motivo_id || '',
+            duracion: String(cita.duracion_minutos || ''),
+            nota: cita.nota || ''
+          });
+          setModalAbierto(true);
+        }}
+        getEstadoColor={getEstadoColor}
+        getEstadoIcon={getEstadoIcon}
+        fechaActual={fechaActual}
+        onFechaChange={setFechaActual}
+      />
 
       {/* Botón flotante para nueva cita */}
       <Fab
@@ -310,14 +362,37 @@ const Agenda = () => {
         aria-label="add"
         sx={{
           position: 'fixed',
-          bottom: 24,
-          right: 24,
+          bottom: 32,
+          right: 32,
           backgroundColor: '#A3C644',
-          '&:hover': { backgroundColor: '#8fb23a' }
+          width: 64,
+          height: 64,
+          boxShadow: '0 8px 24px rgba(163,198,68,0.4)',
+          '&:hover': { 
+            backgroundColor: '#8fb23a',
+            transform: 'scale(1.1)',
+            boxShadow: '0 12px 32px rgba(163,198,68,0.5)'
+          },
+          '&:active': {
+            transform: 'scale(0.95)'
+          },
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
       >
-        <AddIcon />
+        <AddIcon sx={{ fontSize: 28 }} />
       </Fab>
+
+      {/* Modal para agendar cita */}
+      <ModalAgendarCita
+        open={modalAbierto}
+        onClose={cerrarModal}
+        slotSeleccionado={slotSeleccionado}
+        formularioCita={formularioCita}
+        onFormularioChange={manejarCambioFormulario}
+        onGuardar={guardarCita}
+        servicios={servicios}
+        duraciones={duraciones}
+      />
     </Box>
   );
 };

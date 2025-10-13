@@ -22,10 +22,13 @@ const TopMenu = () => {
 
     const userRole = user.rol.id;
     
-    // Roles que solo pueden ver "Pacientes"
-    const restrictedRoles = [ROLES.ADMISION, ROLES.TERAPEUTA];
+    // Terapeuta puede ver "Agenda" y "Pacientes"
+    if (userRole === ROLES.TERAPEUTA) {
+      return menuItems.filter(item => item.text === 'Agenda' || item.text === 'Pacientes');
+    }
     
-    if (restrictedRoles.includes(userRole)) {
+    // Admisión solo puede ver "Pacientes"
+    if (userRole === ROLES.ADMISION) {
       return menuItems.filter(item => item.text === 'Pacientes');
     }
     
