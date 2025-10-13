@@ -1,139 +1,200 @@
 import React, { useEffect } from 'react';
 import  {initializePageScripts}  from '../utils/initScripts';
+import { useState } from 'react';
+
 
 export default function HomePage() {
+
+ const [currentImage, setCurrentImage] = useState(0);
+  
+  const heroImages = [
+    '/assets/img/index/Carrusel servicios.png',
+    '/assets/img/index/Psicologia Infantil.png'
+    
+  ];
+
+
  useEffect(() => {
-
-    initializePageScripts();
-     const tabs = document.querySelectorAll('.quick-tab');
+  initializePageScripts();
+  
+  const tabs = document.querySelectorAll('.quick-tab');
   const contents = document.querySelectorAll('.area-content');
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const area = tab.getAttribute('data-area');
-      
-      // Remover active de todos
-      tabs.forEach(t => t.classList.remove('active'));
-      contents.forEach(c => c.classList.remove('active'));
-      
-      // Activar tab seleccionado
-      tab.classList.add('active');
-      
-      // Activar contenido con delay para la animación
-      const targetContent = document.getElementById(`${area}-content`);
-      
-      // Remover el atributo data-aos temporalmente
-      const cards = targetContent.querySelectorAll('[data-aos]');
-      cards.forEach(card => {
-        card.classList.remove('aos-animate');
-      });
-      
-      // Activar el contenido
-      targetContent.classList.add('active');
-      
-      // Forzar reflow y re-animar
-      setTimeout(() => {
-        cards.forEach(card => {
-          card.classList.add('aos-animate');
-        });
-      }, 50);
+  
+  // Configurar event listeners para tabs
+  const handleTabClick = (tab) => {
+    const area = tab.getAttribute('data-area');
+    
+    // Remover active de todos
+    tabs.forEach(t => t.classList.remove('active'));
+    contents.forEach(c => c.classList.remove('active'));
+    
+    // Activar tab seleccionado
+    tab.classList.add('active');
+    
+    // Activar contenido con delay para la animación
+    const targetContent = document.getElementById(`${area}-content`);
+    
+    // Remover el atributo data-aos temporalmente
+    const cards = targetContent.querySelectorAll('[data-aos]');
+    cards.forEach(card => {
+      card.classList.remove('aos-animate');
     });
+    
+    // Activar el contenido
+    targetContent.classList.add('active');
+    
+    // Forzar reflow y re-animar
+    setTimeout(() => {
+      cards.forEach(card => {
+        card.classList.add('aos-animate');
+      });
+    }, 50);
+  };
+  
+  // Agregar listeners a cada tab
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => handleTabClick(tab));
   });
-       
-}, []);
+  
+  // Carrusel de imágenes
+  const interval = setInterval(() => {
+    setCurrentImage((prev) => (prev + 1) % heroImages.length);
+  }, 5000);
+  
+  // Cleanup function
+  return () => {
+    clearInterval(interval);
+    tabs.forEach(tab => {
+      tab.removeEventListener('click', () => handleTabClick(tab));
+    });
+  };
+}, [heroImages.length]);
 
   return (
     <main className="main">
-      {/* Hero Section */}
-      <section id="hero" className="hero section" style={{ paddingTop: '150px' }}>
-        <div className="container" data-aos="fade-up" data-aos-delay="100">
-          <div className="row align-items-center">
-            <div className="col-lg-6">
-              <div className="hero-content" data-aos="fade-up" data-aos-delay="200">
-                <div className="company-badge mb-4">
-                  <i className="bi bi-heart-fill me-2"></i>
-                  Tu bienestar es nuestra prioridad
-                </div>
-
-                <h1 className="mb-4">
-                  Centro de Terapia <br />
-                  y Desarrollo <br />
-                  <span className="accent-text">Crecemos</span>
-                </h1>
-
-                <p className="mb-4 mb-md-5">
-                  Brindamos atención especializada en terapia psicológica, desarrollo personal 
-                  y bienestar emocional. Nuestro equipo de profesionales te acompaña en tu 
-                  proceso de crecimiento y sanación.
-                </p>
-
-                <div className="hero-buttons">
-                  <a href="/contactanos" className="btn btn-primary me-0 me-sm-2 mx-1">Reservar Cita</a>
-                  <a href="#" className="btn btn-link mt-2 mt-sm-0 glightbox">
-                    <i className="bi bi-play-circle me-1"></i>
-                    Conoce Más
-                  </a>
-                </div>
+  <section id="hero" className="hero section" style={{ paddingTop: '150px' }}>
+      <div className="container" data-aos="fade-up" data-aos-delay="100">
+        <div className="row align-items-center">
+          <div className="col-lg-6">
+            <div className="hero-content" data-aos="fade-up" data-aos-delay="200">
+              <div className="company-badge mb-4">
+                <i className="bi bi-heart-fill me-2"></i>
+                Tu bienestar es nuestra prioridad
               </div>
-            </div>
 
-            <div className="col-lg-6">
-              <div className="hero-image" data-aos="zoom-out" data-aos-delay="300">
-                <img src="/assets/img/index/hero.png" alt="Terapia y Bienestar" className="img-fluid" />
+              <h1 className="mb-4">
+                Centro de Terapia <br />
+                y Desarrollo <br />
+                <span className="accent-text">Crecemos</span>
+              </h1>
 
-                
+              <p className="mb-4 mb-md-5">
+                Brindamos atención especializada en terapia psicológica, desarrollo personal 
+                y bienestar emocional. Nuestro equipo de profesionales te acompaña en tu 
+                proceso de crecimiento y sanación.
+              </p>
+
+              <div className="hero-buttons">
+                <a href="/contactanos" className="btn btn-primary me-0 me-sm-2 mx-1">Reservar Cita</a>
+                <a href="#" className="btn btn-link mt-2 mt-sm-0 glightbox">
+                  <i className="bi bi-play-circle me-1"></i>
+                  Conoce Más
+                </a>
               </div>
             </div>
           </div>
 
-          <div className="row stats-row gy-4 mt-5" data-aos="fade-up" data-aos-delay="500">
-            <div className="col-lg-3 col-md-6">
-              <div className="stat-item">
-                <div className="stat-icon">
-                  <i className="bi bi-people"></i>
-                </div>
-                <div className="stat-content">
-                  <h4>1000+ Pacientes</h4>
-                  <p className="mb-0">Atendidos exitosamente</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-3 col-md-6">
-              <div className="stat-item">
-                <div className="stat-icon">
-                  <i className="bi bi-calendar-check"></i>
-                </div>
-                <div className="stat-content">
-                  <h4>8+ Años</h4>
-                  <p className="mb-0">De experiencia profesional</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-3 col-md-6">
-              <div className="stat-item">
-                <div className="stat-icon">
-                  <i className="bi bi-star-fill"></i>
-                </div>
-                <div className="stat-content">
-                  <h4>98% Satisfacción</h4>
-                  <p className="mb-0">De nuestros pacientes</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-3 col-md-6">
-              <div className="stat-item">
-                <div className="stat-icon">
-                  <i className="bi bi-chat-heart"></i>
-                </div>
-                <div className="stat-content">
-                  <h4>24/7 Apoyo</h4>
-                  <p className="mb-0">Seguimiento continuo</p>
+          <div className="col-lg-6">
+            <div className="hero-image position-relative" data-aos="zoom-out" data-aos-delay="300">
+              {/* Carrusel de imágenes */}
+              <div className="position-relative" style={{ height: '600px', borderRadius: '16px', overflow: 'hidden' }}>
+                {heroImages.map((img, index) => (
+                  <img 
+                    key={index}
+                    src={img}
+                    alt={`Terapia y Bienestar ${index + 1}`}
+                    className="position-absolute top-0 start-0 w-100 h-100"
+                    style={{
+                      objectFit: 'cover',
+                      opacity: index === currentImage ? 1 : 0,
+                      transition: 'opacity 1s ease-in-out'
+                    }}
+                  />
+                ))}
+                
+              
+                
+                {/* Indicadores */}
+                <div className="position-absolute bottom-0 end-0 mb-4 me-4 d-flex gap-2">
+                  {heroImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImage(index)}
+                      className="btn p-0 border-0 rounded-pill"
+                      style={{
+                        width: index === currentImage ? '32px' : '8px',
+                        height: '8px',
+                        backgroundColor: index === currentImage ? 'white' : 'rgba(255, 255, 255, 0.5)',
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer'
+                      }}
+                      aria-label={`Ir a imagen ${index + 1}`}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+
+        <div className="row stats-row gy-4 mt-5" data-aos="fade-up" data-aos-delay="500">
+          <div className="col-lg-3 col-md-6">
+            <div className="stat-item">
+              <div className="stat-icon">
+                <i className="bi bi-people"></i>
+              </div>
+              <div className="stat-content">
+                <h4>1000+ Pacientes</h4>
+                <p className="mb-0">Atendidos exitosamente</p>
+              </div>
+            </div>
+          </div>
+          <div className="col-lg-3 col-md-6">
+            <div className="stat-item">
+              <div className="stat-icon">
+                <i className="bi bi-calendar-check"></i>
+              </div>
+              <div className="stat-content">
+                <h4>8+ Años</h4>
+                <p className="mb-0">De experiencia profesional</p>
+              </div>
+            </div>
+          </div>
+          <div className="col-lg-3 col-md-6">
+            <div className="stat-item">
+              <div className="stat-icon">
+                <i className="bi bi-star-fill"></i>
+              </div>
+              <div className="stat-content">
+                <h4>98% Satisfacción</h4>
+                <p className="mb-0">De nuestros pacientes</p>
+              </div>
+            </div>
+          </div>
+          <div className="col-lg-3 col-md-6">
+            <div className="stat-item">
+              <div className="stat-icon">
+                <i className="bi bi-chat-heart"></i>
+              </div>
+              <div className="stat-content">
+                <h4>24/7 Apoyo</h4>
+                <p className="mb-0">Seguimiento continuo</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
       {/* Services Quick Section */}
       <section className="services-quick">
@@ -375,7 +436,7 @@ export default function HomePage() {
       }} />
       <div className="swiper-wrapper align-items-center">
         {[
-          { img: '/assets/img/index/Logo alianzas.png', name: 'Vaxa - Desarrollo Web y Historias Clinicas' },
+          { img: '/assets/img/index/Logo alianzas.png', name: 'Vaxa - Desarrollo Web e Historias Clinicas' },
           { img: '/assets/img/index/san_marcos.png', name: 'Universidad Mayor de San Marcos' },
           { img: '/assets/img/index/villareal.png', name: 'Universidad Villareal' },
           { img: '/assets/img/index/cayetano.png', name: 'Universidad Cayetano Heredia' },

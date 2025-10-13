@@ -104,7 +104,7 @@ import  {initializePageScripts}  from '../../utils/initScripts';
                 <div className="price">
                   <span
                     className="original-price"
-                    style={{ textDecoration: "line-through", color: "gray" }}
+                    style={{ textDecoration: "line-through", color: "white" }}
                   >
                     S/. 400.00
                   </span>

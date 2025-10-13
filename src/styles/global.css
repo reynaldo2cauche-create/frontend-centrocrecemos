@@ -4110,3 +4110,548 @@ section,
         padding: 25px;
       }
     }
+
+    /* LibroReclamaciones.css - Estilos específicos solo para este componente */
+
+/* Contenedor principal */
+.libro-reclamaciones-page {
+  background-color: var(--background-color);
+}
+
+/* Hero Section específica */
+.libro-reclamaciones-hero .page-title-custom {
+  background: linear-gradient(135deg, #2d465e, #0d83fd);
+}
+
+/* Sección del formulario */
+.libro-reclamaciones-section {
+  padding: 80px 0;
+  background-color: var(--background-color);
+}
+
+/* Intro box */
+.libro-intro-box {
+  background: color-mix(in srgb, var(--accent-color), transparent 95%);
+  border-left: 5px solid var(--accent-color);
+  border-radius: 10px;
+  padding: 30px;
+  margin-bottom: 50px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+}
+
+.libro-intro-box p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin: 0;
+  color: var(--default-color);
+}
+
+.libro-intro-box strong {
+  color: var(--heading-color);
+  font-weight: 700;
+}
+
+/* Items del formulario */
+.libro-form-item {
+  background: var(--surface-color);
+  border-radius: 15px;
+  padding: 40px;
+  margin-bottom: 30px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 5px solid var(--accent-color);
+}
+
+.libro-form-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.libro-form-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: var(--accent-color);
+  color: var(--contrast-color);
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.libro-form-item h3 {
+  color: var(--heading-color);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  font-family: var(--heading-font);
+}
+
+/* Labels del formulario */
+.libro-form-label {
+  font-weight: 600;
+  color: var(--heading-color);
+  margin-bottom: 8px;
+  display: block;
+  font-size: 1rem;
+}
+
+/* Controles del formulario */
+.libro-form-control,
+.libro-form-select {
+  border: 2px solid color-mix(in srgb, var(--default-color), transparent 85%);
+  border-radius: 10px;
+  padding: 12px 15px;
+  transition: all 0.3s ease;
+  background-color: var(--surface-color);
+  width: 100%;
+  font-size: 1rem;
+  color: var(--default-color);
+}
+
+.libro-form-control:focus,
+.libro-form-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent-color), transparent 80%);
+  outline: none;
+}
+
+.libro-form-control::placeholder {
+  color: color-mix(in srgb, var(--default-color), transparent 50%);
+}
+
+/* Textarea específico */
+.libro-form-control[type="textarea"] {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Checkboxes */
+.libro-form-check {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.libro-form-check-input {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  margin-top: 3px;
+  flex-shrink: 0;
+  border: 2px solid color-mix(in srgb, var(--default-color), transparent 70%);
+  border-radius: 4px;
+}
+
+.libro-form-check-input:checked {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.libro-form-check-label {
+  color: var(--default-color);
+  line-height: 1.5;
+  font-size: 1rem;
+  flex: 1;
+}
+
+/* Info box */
+.libro-info-box {
+  background: color-mix(in srgb, var(--accent-color), transparent 92%);
+  border-radius: 10px;
+  padding: 25px;
+  margin: 20px 0;
+}
+
+.libro-info-box p {
+  margin: 0;
+  color: var(--heading-color);
+  font-weight: 500;
+  font-size: 1.05rem;
+}
+
+.libro-info-box i {
+  color: var(--accent-color);
+}
+
+/* Alertas */
+.libro-alert {
+  border-radius: 10px;
+  border: none;
+  padding: 20px;
+  margin: 15px 0;
+}
+
+.libro-alert-info {
+  background-color: color-mix(in srgb, var(--accent-color), transparent 92%);
+  color: var(--heading-color);
+}
+
+.libro-alert ul {
+  margin: 10px 0 0 0;
+  padding-left: 20px;
+}
+
+.libro-alert li {
+  margin-bottom: 5px;
+}
+
+/* Sección de alerta */
+.libro-alert-section {
+  background: color-mix(in srgb, var(--accent-color), transparent 90%);
+  border-radius: 15px;
+  padding: 30px;
+  margin: 40px 0;
+  text-align: center;
+  border: 2px dashed var(--accent-color);
+}
+
+.libro-alert-section i {
+  font-size: 3rem;
+  color: var(--accent-color);
+  margin-bottom: 15px;
+}
+
+.libro-alert-section h4 {
+  color: var(--heading-color);
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.libro-alert-section p {
+  color: var(--default-color);
+  font-size: 1.1rem;
+  margin: 0;
+  line-height: 1.7;
+}
+
+/* Texto de ayuda */
+.libro-form-text {
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--default-color), transparent 40%);
+  margin-top: 5px;
+}
+
+/* Box de contacto */
+.libro-contact-box {
+  background: var(--surface-color);
+  border-radius: 15px;
+  padding: 30px;
+  margin-top: 30px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.libro-contact-box h4 {
+  color: var(--heading-color);
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.libro-contact-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.libro-contact-box li {
+  padding: 10px 0;
+  color: var(--default-color);
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+}
+
+.libro-contact-box i {
+  color: var(--accent-color);
+  margin-right: 10px;
+  font-size: 1.2rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* Acciones */
+.libro-actions {
+  text-align: center;
+}
+
+/* Estilos para impresión */
+@media print {
+  .libro-actions {
+    display: none;
+  }
+  
+  .libro-form-item {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+  }
+  
+  .libro-reclamaciones-hero .page-title-custom {
+    background: #f8f9fa !important;
+    color: #000 !important;
+  }
+  
+  .bubble {
+    display: none;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .libro-form-item {
+    padding: 25px 20px;
+  }
+  
+  .libro-form-control,
+  .libro-form-select {
+    padding: 10px 12px;
+    font-size: 16px; /* Previene zoom en iOS */
+  }
+  
+  .libro-form-item h3 {
+    font-size: 1.5rem;
+  }
+  
+  .libro-form-number {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+  
+  .libro-actions .btn-custom,
+  .libro-actions .btn-custom-outline {
+    width: 100%;
+    margin-bottom: 10px;
+    margin-right: 0 !important;
+  }
+  
+  .libro-contact-box {
+    padding: 20px;
+  }
+  
+  .libro-contact-box li {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .libro-reclamaciones-section {
+    padding: 60px 0;
+  }
+  
+  .libro-form-item {
+    padding: 20px 15px;
+  }
+  
+  .libro-intro-box {
+    padding: 20px;
+  }
+  
+  .libro-alert-section {
+    padding: 20px;
+  }
+  
+  .libro-alert-section i {
+    font-size: 2rem;
+  }
+  
+  .libro-alert-section h4 {
+    font-size: 1.3rem;
+  }
+}
+
+/* Estilos específicos para el formulario de postulación */
+.job-application {
+  padding: 80px 0;
+}
+
+.application-form-container {
+  background: var(--surface-color);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid color-mix(in srgb, var(--accent-color), transparent 90%);
+}
+
+.form-header h3 {
+  color: var(--heading-color);
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  font-family: var(--heading-font);
+}
+
+.application-card {
+  background: var(--background-color);
+  border-radius: 15px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  transition: all 0.3s ease;
+}
+
+.application-card:hover {
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  border-color: color-mix(in srgb, var(--accent-color), transparent 70%);
+}
+
+.application-card .card-header {
+  background: color-mix(in srgb, var(--accent-color), transparent 95%);
+  padding: 20px 30px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
+}
+
+.application-card .card-header h4 {
+  color: var(--heading-color);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.application-card .card-header h4::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 20px;
+  background: var(--accent-color);
+  margin-right: 12px;
+  border-radius: 2px;
+}
+
+.application-card .card-body {
+  padding: 30px;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--heading-color);
+  margin-bottom: 8px;
+  display: block;
+  font-size: 1rem;
+}
+
+.form-control, .form-select {
+  border: 2px solid color-mix(in srgb, var(--default-color), transparent 85%);
+  border-radius: 10px;
+  padding: 12px 15px;
+  transition: all 0.3s ease;
+  background-color: var(--surface-color);
+  width: 100%;
+  font-size: 1rem;
+  color: var(--default-color);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent-color), transparent 80%);
+  outline: none;
+}
+
+.form-control::placeholder {
+  color: color-mix(in srgb, var(--default-color), transparent 50%);
+}
+
+.form-text {
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--default-color), transparent 40%);
+  margin-top: 5px;
+}
+
+.file-selected {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+.application-actions {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+}
+
+.btn-primary {
+  background: var(--accent-color);
+  border: none;
+  color: var(--contrast-color);
+  padding: 15px 40px;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--accent-color), black 15%);
+  color: var(--contrast-color);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(194, 99, 249, 0.4);
+}
+
+.btn-primary:disabled {
+  background: color-mix(in srgb, var(--accent-color), transparent 50%);
+  transform: none;
+  box-shadow: none;
+}
+
+.invalid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+  font-size: 0.875rem;
+  color: #dc3545;
+}
+
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .application-form-container {
+    padding: 25px 20px;
+  }
+  
+  .application-card .card-body {
+    padding: 20px;
+  }
+  
+  .application-card .card-header {
+    padding: 15px 20px;
+  }
+  
+  .form-header h3 {
+    font-size: 1.8rem;
+  }
+  
+  .btn-primary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .job-application {
+    padding: 60px 0;
+  }
+  
+  .application-form-container {
+    padding: 20px 15px;
+  }
+  
+  .application-card .card-body {
+    padding: 15px;
+  }
+}

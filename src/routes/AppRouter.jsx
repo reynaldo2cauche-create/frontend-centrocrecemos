@@ -36,6 +36,8 @@ import Agenda from '../pages/Agenda';
 import ReglamentoInterno from '../pages/ReglamentoInterno';
 import PoliticaPrivacidad from '../pages/PoliticaPrivacidad';
 import Mantenimiento from '../pages/Mantenimiento';
+import LibroReclamaciones from '../pages/LibroReclamaciones';
+import { LibroReclamacionesDashboard } from '../pages/LibroReclamacionesDashboard';
 
 
 export const AppRouter = () => {
@@ -69,6 +71,11 @@ export const AppRouter = () => {
             <Agenda />
           </PrivateRoute>
         } />
+        <Route path="/intranet/libro-reclamaciones" element={
+          <PrivateRoute>
+            <LibroReclamacionesDashboard />
+          </PrivateRoute>
+        } />
         
         <Route path="/editar-paciente/:id" element={<><TopMenu /><EditarPacientePage /></>} />
         <Route path="/preguntas" element={<Preguntas />} />
@@ -93,10 +100,12 @@ export const AppRouter = () => {
           <Route path="adulto-evaluacion-psicologica-universidad" element={<AdultoEvalPsicolUniverPage />} />
           <Route path="terminos-condiciones" element={<TerminosCondiciones />} />
           <Route path="mantenimiento" element={<Mantenimiento />} />
+          
           <Route path="reglamento-interno" element={<ReglamentoInterno />} />
           <Route path="politica-privacidad" element={<PoliticaPrivacidad />} />
           <Route path="trabaja-nosotros" element={<TrabajaNosotros />} />
           <Route path="registro-paciente" element={<RegistroPacientePage />} />
+          <Route path="libro-reclamaciones" element={<LibroReclamaciones />} />
           <Route path="loading" element={<Loading />} />
           <Route path="*" element={<ErrorPage />} />
         </Route>
