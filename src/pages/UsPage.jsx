@@ -238,7 +238,7 @@ const UsPage = () => {
               <div className="col-lg-8 text-center" data-aos="fade-up" data-aos-delay="100">
                 <h3>¿Listo para comenzar tu proceso de rehabilitación?</h3>
                 <p>Nos sentimos comprometidos con nuestros pacientes, trabajadores, proveedores y la sociedad. Este modelo de atención integral es el que vivimos cada día.</p>
-                <a href="/contacto" className="btn-custom">Contáctanos</a>
+                <a href="contactanos" className="btn-custom">Contáctanos</a>
               </div>
             </div>
           </div>

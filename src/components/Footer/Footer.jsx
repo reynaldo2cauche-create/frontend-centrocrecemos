@@ -12,6 +12,7 @@ import {
   Facebook,
   Instagram,
   YouTube,
+  
 
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -74,7 +75,7 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Columna 3: Horarios */}
+            {/* Columna 3: Horarios y Libro de Reclamaciones */}
             <div className="col-lg-3 col-md-6 footer-links">
               <h4>Horarios de Atención</h4>
               <ul>
@@ -82,10 +83,48 @@ export default function Footer() {
                 <li>Sábados: 8:00 AM - 2:00 PM</li>
                 <li>Domingos: Cerrado</li>
               </ul>
+              
+              {/* Sección Libro de Reclamaciones */}
+              <div className="libro-reclamaciones mt-4" style={{ textAlign: 'left' }}>
+                <h4>Libro de Reclamaciones</h4>
+                <div>
+                  <a 
+                    href="#" 
+                    onClick={(e) => { 
+                      e.preventDefault(); 
+                      navigate('libro-reclamaciones'); 
+                    }}
+                    style={{ 
+                      display: 'inline-block', 
+                      textDecoration: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <img 
+                      src="/assets/img/libro-reclamaciones.png" 
+                      alt="Libro de Reclamaciones" 
+                      style={{
+                        width: '100px',
+                        height: 'auto',
+                        borderRadius: '6px',
+                        
+                        transition: 'transform 0.3s ease',
+                        marginLeft: '0'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'scale(1)';
+                      }}
+                    />
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* Columna 4: Legales */}
-              <div className="col-lg-3 col-md-6 footer-links">
+            <div className="col-lg-3 col-md-6 footer-links">
               <h4>Legales</h4>
               <ul>
                 <li>
@@ -94,7 +133,7 @@ export default function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/mantenimiento'); }}>
+                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/trabaja-nosotros'); }}>
                     Trabaja con Nosotros
                   </a>
                 </li>

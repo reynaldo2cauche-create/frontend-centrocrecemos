@@ -1,225 +1,403 @@
-
-import React, { useState } from 'react'
-import Carousel from 'react-material-ui-carousel'
-import { imagesUneteNosotros, imagesUneteNosotrosMov } from './constants'
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
-import { ThemePalette } from '../theme/theme'
-import { CButton } from '../components/Button'
-import FormularioTrabaja from '../components/FormularioTrabaja/FormularioTrabaja'
-
-const jobs = [
-  {
-    id: '1',
-    title: 'Psicomotricidad y Terapia Ocupacional',
-    description: '¡Únete a nuestro equipo! Buscamos licenciadas para Psicomotricidad y Terapia Ocupacional que disfruten ayudar a nuestros niños y jóvenes a fortalecer sus habilidades motoras y a ganar mayor independencia. ¡Tu talento puede marcar la diferencia!',    
-  },
-  {
-    id: '2',
-    title: 'Psicología de Adultos y Orientación Vocacional',
-    description: '“Si eres psicóloga y te apasiona guiar a adultos en su crecimiento emocional o apoyarlos con orientación vocacional, ¡te queremos en nuestro equipo! Ayuda a nuestros pacientes a descubrir su potencial y enfrentar sus desafíos con confianza.”',    
-  },
-  {
-    id: '3',
-    title: 'Psicología y Terapia de Aprendizaje',
-    description: '“Estamos en búsqueda de psicólogas para trabajar en terapia de aprendizaje, acompañando a niños y adolescentes a desarrollar sus habilidades cognitivas y académicas. Si crees en el poder de la educación y la empatía, ¡postula con nosotros!”',
-  },
-  {
-    id: '4',
-    title: 'Terapia de Lenguaje',
-    description: '“¿Eres terapeuta de lenguaje y quieres apoyar a los más pequeños en su desarrollo comunicativo? ¡Esta es tu oportunidad! Únete y contribuye a que nuestros niños y adolescentes se expresen con claridad y seguridad.”',
-  },
-  {
-    id: '5',
-    title: 'Estimulación Temprana',
-    description: '“Invitamos a licenciadas en Estimulación Temprana que quieran ayudar a nuestros pequeñitos en su desarrollo inicial. Si te encanta trabajar con los más pequeños y fomentar su crecimiento integral, ¡esperamos tu postulación!”',
-  },
-]
+import { useState, useEffect } from 'react';
+import emailjs from '@emailjs/browser';
+import { initializePageScripts } from '../utils/initScripts';
 
 export const TrabajaNosotros = () => {
+  useEffect(() => {
+    initializePageScripts();
+    emailjs.init("89VA2AX2iodlkfUDp");
+  }, []);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [cargoPostular, setCargoPostular] = useState('');
-  const handleCloseModal = () => setModalOpen(false);
+  const [formData, setFormData] = useState({
+    specialty: '',
+    firstName: '',
+    lastName: '',
+    mobile: '',
+    email: '',
+    subject: '',
+    experience: '',
+    cv: null
+  });
 
-  const theme = useTheme();
+  const [errors, setErrors] = useState({});
+  const [formStatus, setFormStatus] = useState({
+    loading: false,
+    success: false
+  });
+  const [showModal, setShowModal] = useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  // Validación inline
+  const validateField = (name, value) => {
+    switch(name){
+      case 'firstName':
+      case 'lastName':
+        if(!value.trim()) return "Este campo es obligatorio.";
+        break;
+      case 'email':
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          return "Por favor ingresa un correo válido.";
+        break;
+      case 'mobile':
+        if(!/^\d{9}$/.test(value))
+          return "El número debe tener exactamente 9 dígitos.";
+        break;
+      case 'specialty':
+        if(!value) return "Debes seleccionar una especialidad.";
+        break;
+      case 'experience':
+        if(!value.trim()) return "Debes describir tu experiencia laboral.";
+        break;
+      default:
+        return "";
+    }
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    const errorMsg = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: errorMsg }));
   };
 
-  const renderItem = (data) =>  (
-    <Box height='100%' key={data.key}>
-      <img  src={data.image} height='100%' width='100%'  />
-    </Box>
-  )
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validar tipo de archivo
+      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!validTypes.includes(file.type)) {
+        setErrors(prev => ({ ...prev, cv: "Solo se permiten archivos PDF o Word." }));
+        return;
+      }
+      
+      // Validar tamaño (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors(prev => ({ ...prev, cv: "El archivo no debe superar los 5MB." }));
+        return;
+      }
+      
+      setFormData(prev => ({ ...prev, cv: file }));
+      setErrors(prev => ({ ...prev, cv: "" }));
+    }
+  };
 
-  const onlySmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validar todos los campos antes de enviar
+    const newErrors = {
+      specialty: validateField('specialty', formData.specialty),
+      firstName: validateField('firstName', formData.firstName),
+      lastName: validateField('lastName', formData.lastName),
+      email: validateField('email', formData.email),
+      mobile: validateField('mobile', formData.mobile),
+      experience: validateField('experience', formData.experience)
+    };
+    
+    setErrors(newErrors);
+    
+    // Si hay errores, no enviar
+    if(Object.values(newErrors).some(msg => msg)) return;
+    
+    setFormStatus({ loading: true, success: false });
+    
+    try {
+      const templateParams = {
+        to_email: 'info@crecemos.com.pe',
+        from_name: `${formData.firstName} ${formData.lastName}`,
+        from_email: formData.email,
+        phone: formData.mobile,
+        specialty: formData.specialty,
+        subject: formData.subject,
+        experience: formData.experience,
+        reply_to: formData.email
+      };
+
+      const response = await emailjs.send(
+        'service_4z5rxtl',
+        'template_6asz72w',
+        templateParams
+      );
+
+      if(response.status === 200){
+        setFormStatus({ loading: false, success: true });
+        setFormData({ 
+          specialty: '', 
+          firstName: '', 
+          lastName: '', 
+          mobile: '', 
+          email: '', 
+          subject: '', 
+          experience: '',
+          cv: null 
+        });
+        setErrors({});
+        setShowModal(true);
+      }
+    } catch (error) {
+      console.error(error);
+      setFormStatus({ loading: false, success: false });
+      alert("Error al enviar la postulación. Intenta nuevamente.");
+    }
+  };
 
   return (
+    <main className="main">
+      <div className="page-title" data-aos="fade">
+        <div className="container">
+          <h1>Únete a Nuestro Equipo</h1>
+          <p className="page-subtitle">
+            Postula para formar parte de nuestro equipo de especialistas en terapias de rehabilitación.
+          </p>
+          <nav className="breadcrumbs">
+            <ol>
+              <li><a href="/">Inicio</a></li>
+              <li className="current">Trabaja con Nosotros</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
 
-    <>
-    <Box display='flex'  flexDirection='column'>
+      <section id="job-application" className="job-application section light-background">
+        <div className="container" data-aos="fade-up" data-aos-delay="100">
+          <div className="row justify-content-center">
+            <div className="col-lg-10">
+              <div className="application-form-container" data-aos="fade-up" data-aos-delay="200">
+                <div className="form-header text-center mb-5">
+                  <h3>Formulario de Postulación</h3>
+                  <p className="text-muted">
+                    Completa todos los campos requeridos para postular a una de nuestras especialidades.
+                  </p>
+                </div>
 
-      {/* SECTION 1 */}
-      <Carousel 
-        height= {onlySmallScreen ? '365px' : '535px'}
-        sx={{
-          marginTop: '8px'
-        }}
-      >
-        {
-          onlySmallScreen ? (
-            imagesUneteNosotrosMov.map( (item) => renderItem(item) )
-          ) : (
-            imagesUneteNosotros.map( (item) => renderItem(item) )
-          )
-        }
-      </Carousel>
-      
-      {/* SECTION 2 */}
-      <Box display='flex' gap='30px' flexDirection='column' bgcolor={ThemePalette.PURPLE_LIGHT} p='40px 10px'>
-        <Box>
-          <Typography component='h1' textAlign='center' fontWeight='bold' fontSize='24px' color={ThemePalette.WHITE}>ÚNETE A NUESTRA FAMILIA</Typography>
-          <Divider sx={{ backgroundColor: ThemePalette.WHITE, width: '280px', margin: 'auto' }} />
-        </Box>  
-        <Typography component='p' textAlign='center' color={ThemePalette.WHITE}
-          sx={{
-            p: { md: '0px 100px', xs:'1px'}
-          }}
-        >“En Crecemos, valoramos el talento, la vocación y el compromiso con el bienestar de nuestros pacientes. Sé parte de un equipo apasionado por transformar vidas a través de terapias integrales y personalizadas. Juntos, hacemos la diferencia.”
-        </Typography>
-      </Box>
+                <form className="application-form" onSubmit={handleSubmit}>
+                  <div className="application-card mb-4">
+                    <div className="card-header">
+                      <h4>Información Personal</h4>
+                    </div>
+                    <div className="card-body">
+                      <div className="row gy-4">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label htmlFor="firstName" className="form-label">Nombres *</label>
+                            <input 
+                              type="text" 
+                              id="firstName"
+                              name="firstName"
+                              className={`form-control ${errors.firstName ? 'is-invalid' : ''}`}
+                              placeholder="Ingresa tus nombres"
+                              value={formData.firstName}
+                              onChange={handleChange}
+                            />
+                            {errors.firstName && <div className="invalid-feedback">{errors.firstName}</div>}
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label htmlFor="lastName" className="form-label">Apellidos *</label>
+                            <input 
+                              type="text" 
+                              id="lastName"
+                              name="lastName"
+                              className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
+                              placeholder="Ingresa tus apellidos"
+                              value={formData.lastName}
+                              onChange={handleChange}
+                            />
+                            {errors.lastName && <div className="invalid-feedback">{errors.lastName}</div>}
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label htmlFor="mobile" className="form-label">Número Móvil *</label>
+                            <input 
+                              type="tel" 
+                              id="mobile"
+                              name="mobile"
+                              className={`form-control ${errors.mobile ? 'is-invalid' : ''}`}
+                              placeholder="Ej: 987654321"
+                              value={formData.mobile}
+                              onChange={handleChange}
+                            />
+                            {errors.mobile && <div className="invalid-feedback">{errors.mobile}</div>}
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label htmlFor="email" className="form-label">Correo Electrónico *</label>
+                            <input 
+                              type="email" 
+                              id="email"
+                              name="email"
+                              className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                              placeholder="tu.correo@ejemplo.com"
+                              value={formData.email}
+                              onChange={handleChange}
+                            />
+                            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-      {/* SECTION 3 */}
-      <Box display='flex' flexDirection='column' gap='20px' bgcolor={ThemePalette.PURPLE_LIGHT} p='20px 0px'>
-        <Box display='flex' gap='30px' flexDirection='column'>
-          <Box>
-            <Typography component='h1' textAlign='center' fontWeight='bold' fontSize='24px' color={ThemePalette.WHITE}>TRABAJA CON NOSOTROS</Typography>
-            <Divider sx={{ backgroundColor: ThemePalette.WHITE, width: '250px', margin: 'auto' }} />
-          </Box>          
-          <Typography component='p' textAlign='center' color={ThemePalette.WHITE}
-            sx={{
-              p: { md: '0px 100px', xs:'1px'}
-            }}
-          >“Buscamos profesionales dedicados que compartan nuestra misión de brindar calidad, calidez y excelencia en cada sesión. Descubre cómo puedes crecer profesionalmente en un ambiente colaborativo y enriquecedor.”</Typography>
-        </Box>
-        
+                  <div className="application-card mb-4">
+                    <div className="card-header">
+                      <h4>Información Profesional</h4>
+                    </div>
+                    <div className="card-body">
+                      <div className="row gy-4">
+                        <div className="col-12">
+                          <div className="form-group">
+                            <label htmlFor="specialty" className="form-label">Especialidad *</label>
+                            <select 
+                              id="specialty"
+                              name="specialty"
+                              className={`form-select ${errors.specialty ? 'is-invalid' : ''}`}
+                              value={formData.specialty}
+                              onChange={handleChange}
+                            >
+                              <option value="">Selecciona tu especialidad</option>
+                              <option value="Psicología Infantil">Psicología Infantil</option>
+                              <option value="Fisioterapia">Fisioterapia</option>
+                              <option value="Terapia de Lenguaje">Terapia de Lenguaje</option>
+                              <option value="Terapia Ocupacional">Terapia Ocupacional</option>
+                              <option value="Estimulación Temprana">Estimulación Temprana</option>
+                              <option value="Terapia Familiar">Terapia Familiar</option>
+                              <option value="Psicopedagogía">Psicopedagogía</option>
+                              <option value="Musicoterapia">Musicoterapia</option>
+                              <option value="Otra">Otra especialidad</option>
+                            </select>
+                            {errors.specialty && <div className="invalid-feedback">{errors.specialty}</div>}
+                          </div>
+                        </div>
+                        <div className="col-12">
+                          <div className="form-group">
+                            <label htmlFor="subject" className="form-label">Asunto</label>
+                            <input 
+                              type="text" 
+                              id="subject"
+                              name="subject"
+                              className="form-control"
+                              placeholder="Ej: Postulación para Terapeuta de Lenguaje"
+                              value={formData.subject}
+                              onChange={handleChange}
+                            />
+                          </div>
+                        </div>
+                        <div className="col-12">
+                          <div className="form-group">
+                            <label htmlFor="experience" className="form-label">Experiencia Laboral *</label>
+                            <textarea 
+                              id="experience"
+                              name="experience"
+                              className={`form-control ${errors.experience ? 'is-invalid' : ''}`}
+                              rows="6"
+                              placeholder="Describe tu experiencia profesional, formación, especializaciones y logros relevantes..."
+                              value={formData.experience}
+                              onChange={handleChange}
+                            ></textarea>
+                            {errors.experience && <div className="invalid-feedback">{errors.experience}</div>}
+                          </div>
+                        </div>
+                        <div className="col-12">
+                          <div className="form-group">
+                            <label htmlFor="cv" className="form-label">Curriculum Vitae (PDF o Word)</label>
+                            <input 
+                              type="file" 
+                              id="cv"
+                              name="cv"
+                              className={`form-control ${errors.cv ? 'is-invalid' : ''}`}
+                              accept=".pdf,.doc,.docx"
+                              onChange={handleFileChange}
+                            />
+                            <div className="form-text">
+                              Formatos aceptados: PDF, DOC, DOCX. Tamaño máximo: 5MB.
+                            </div>
+                            {errors.cv && <div className="invalid-feedback">{errors.cv}</div>}
+                            {formData.cv && (
+                              <div className="file-selected mt-2">
+                                <i className="bi bi-file-earmark-check text-success me-2"></i>
+                                Archivo seleccionado: {formData.cv.name}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-        <Box display='flex' flexDirection='column' gap='10px' justifyContent='center' alignItems='center'>
-          {
-            jobs.map((res) => (
-              <Box  key={res.id} display='flex' flexDirection='row' alignItems='center' bgcolor={ThemePalette.WHITE}  borderRadius='10px' p='10px 30px' width='90%'>
-                <Box display='flex' flexDirection='column' gap='10px' flex='1'>
-                  <Typography component='h2' fontWeight='bold' color={ThemePalette.BLACK_MEDIUM} fontSize='17px'>{res.title}</Typography>                  
-                  <Typography component='p'>{res.description}</Typography>
-                </Box>
-                <Box display='flex' flex={1} justifyContent='flex-end'>
-                  <CButton
-                    variant='contained'
-                    type='button'
-                    backgroundColor={ThemePalette.SKYBLUE_MEDIUM  }
-                    onClick={() => {
-                      setModalOpen(true)
-                      setCargoPostular(res.title)
-                    }}
-                  >
-                    Postula Aquí
-                  </CButton>
-                </Box>
-                
-              </Box>
-              
+                  <div className="application-actions text-center">
+                    {formStatus.error && (
+                      <div className="alert alert-danger">{formStatus.error}</div>
+                    )}
+                    {formStatus.success && !showModal && (
+                      <div className="alert alert-success">
+                        ¡Tu postulación ha sido enviada exitosamente!
+                      </div>
+                    )}
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-lg px-5"
+                      disabled={formStatus.loading}
+                    >
+                      {formStatus.loading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <i className="bi bi-send-check me-2"></i>
+                          Enviar Postulación
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            ))
-          }
-        </Box>
-      </Box>
-
-    </Box>
-
-    {modalOpen && (
-        <FormularioTrabaja
-          onCloseModal={handleCloseModal} // Callback para cerrar el modal desde el componente padre
-          cargoPostular={cargoPostular}
-        />
+      {showModal && (
+        <div 
+          className="modal fade show" 
+          style={{ display: "block", background: "rgba(0,0,0,0.6)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content" style={{ borderRadius: "20px", textAlign: "center", padding: "30px" }}>
+              <div 
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  background: "#4caf50",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 20px"
+                }}
+              >
+                <i className="bi bi-check2" style={{ fontSize: "40px", color: "#fff" }}></i>
+              </div>
+              <h4 style={{ marginBottom: "10px", color: "#2e7d32" }}>¡Postulación Enviada!</h4>
+              <p style={{ color: "#555", fontSize: "15px" }}>
+                Hemos recibido tu postulación y la revisaremos cuidadosamente. 
+                Nos pondremos en contacto contigo si tu perfil coincide con nuestras necesidades.
+              </p>
+              <button 
+                className="btn btn-success mt-3 px-4"
+                style={{ borderRadius: "10px" }}
+                onClick={() => setShowModal(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
-    {/* <Dialog
-        open={open}
-        onClose={handleClose}
-        PaperProps={{
-          component: 'form',
-          onSubmit: (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries((formData).entries());
-            const email = formJson.email;
-            console.log(email);
-            handleClose();
-          },
-        }}
-      >
-        <DialogTitle>Postular</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Bienvenido a CentroCrecemos, deje sus datos para poder contactarlo , gracias por la postulación
-          </DialogContentText>
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="fullname"
-            name="fullname"
-            label="Nombres y Apellidos"
-            type="text"
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="phone"
-            name="phone"
-            label="Teléfono de Contacto"
-            type="text"
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="name"
-            name="email"
-            label="Email"
-            type="email"
-            fullWidth
-            variant="standard"
-          />          
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="fileCv"
-            name="fileCv"
-            label="Sube tu CV, Resumen"
-            type="file"
-            fullWidth
-            variant="standard"
-          />
-          
-          
-        </DialogContent>
-        <DialogActions>
-          <Button variant='contained' color='error' onClick={handleClose}>Cancelar</Button>
-          <Button variant='contained' type="button" onClick={handleClose}>Guardar</Button>
-        </DialogActions>
-    </Dialog> */}
-
-    </>
-  )
-}
+    </main>
+  );
+};
