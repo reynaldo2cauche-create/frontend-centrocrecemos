@@ -27,9 +27,9 @@ const TopMenu = () => {
       return menuItems.filter(item => item.text === 'Agenda' || item.text === 'Pacientes');
     }
     
-    // Admisión solo puede ver "Pacientes"
+    // Admisión puede ver "Agenda" y "Pacientes"
     if (userRole === ROLES.ADMISION) {
-      return menuItems.filter(item => item.text === 'Pacientes');
+      return menuItems.filter(item => item.text === 'Agenda' || item.text === 'Pacientes');
     }
     
     // Otros roles pueden ver todos los elementos

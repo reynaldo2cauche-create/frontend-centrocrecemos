@@ -27,5 +27,17 @@ export const useCitas = () => {
     return nueva;
   };
 
-  return { citas, loading, error, listarCitas, crearCita };
+  const actualizarCita = async (id, citaData) => {
+    const actualizada = await citaService.actualizarCita(id, citaData);
+    setCitas(prev => prev.map(c => c.id === id ? actualizada : c));
+    return actualizada;
+  };
+
+  const eliminarCita = async (id, userId) => {
+    const resultado = await citaService.eliminarCita(id, userId);
+    setCitas(prev => prev.filter(c => c.id !== id));
+    return resultado;
+  };
+
+  return { citas, loading, error, listarCitas, crearCita, actualizarCita, eliminarCita };
 };

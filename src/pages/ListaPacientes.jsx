@@ -27,7 +27,6 @@ import { useNavigate } from 'react-router-dom';
 import { getPacientes, getPacienteById, getEstadosPaciente } from '../services/pacienteService';
 import { getDistritos, getServicios } from '../services/catalogoService';
 import WizardRegistroPaciente from '../components/WizzardRegistroPaciente/WizzardRegistroPaciente';
-import TopMenu from '../components/TopMenu';
 import TablaPacientes from '../components/Pacientes/TablaPacientes';
 import DetallePacientePanel from '../components/Pacientes/DetallePacientePanel';
 import { useCurrentUser } from '../hooks/useCurrentUser';
@@ -462,7 +461,6 @@ export const ListaPacientes = () => {
   if (loading) {
     return (
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-        <TopMenu />
         <Box sx={{ 
           flexGrow: 1, 
           p: 3, 
@@ -481,7 +479,6 @@ export const ListaPacientes = () => {
   if (error && !pacientes.length) {
     return (
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-        <TopMenu />
         <Box sx={{ 
           flexGrow: 1, 
           p: 3, 

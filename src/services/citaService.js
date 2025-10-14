@@ -23,13 +23,20 @@ export const actualizarCita = async (id, citaData) => {
   return response.data;
 };
 
-export const eliminarCita = async (id) => {
-  const response = await api.delete(`/citas/${id}`);
+export const eliminarCita = async (id, userId) => {
+  const response = await api.delete(`/citas/${id}`, {
+    data: { user_id: userId }
+  });
   return response.data;
 };
 
 export const getCitaById = async (id) => {
   const response = await api.get(`/citas/${id}`);
+  return response.data;
+};
+
+export const getHistorialCita = async (id) => {
+  const response = await api.get(`/citas/${id}/historial`);
   return response.data;
 };
 

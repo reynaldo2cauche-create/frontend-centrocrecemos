@@ -51,22 +51,22 @@ export const AppRouter = () => {
         <Route path="/intranet" element={<Login />} />
         <Route path="/intranet/lista-pacientes" element={
           <PrivateRoute>
-            <ListaPacientes />
+            <><TopMenu /><ListaPacientes /></>
           </PrivateRoute>
         } />
         <Route path="/intranet/reportes-evaluaciones" element={
           <PrivateRoute>
-            <ReportesEvaluaciones />
+            <><TopMenu /><ReportesEvaluaciones /></>
           </PrivateRoute>
         } />
         <Route path="/intranet/usuarios" element={
           <PrivateRoute>
-            <Usuarios />
+            <><TopMenu /><Usuarios /></>
           </PrivateRoute>
         } />
         <Route path="/intranet/agenda" element={
           <PrivateRoute>
-            <Agenda />
+            <><TopMenu /><Agenda /></>
           </PrivateRoute>
         } />
         

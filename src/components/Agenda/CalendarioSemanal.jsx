@@ -22,6 +22,7 @@ import {
   CalendarToday as CalendarTodayIcon,
   InfoOutlined as InfoOutlinedIcon
 } from '@mui/icons-material';
+import { ROLES } from '../../constants/roles';
 
 const CalendarioSemanal = ({
   horas,
@@ -31,7 +32,8 @@ const CalendarioSemanal = ({
   getEstadoColor,
   getEstadoIcon,
   fechaActual,
-  onFechaChange
+  onFechaChange,
+  currentUser = null
 }) => {
   const [diasSemana, setDiasSemana] = useState([]);
 
@@ -71,15 +73,24 @@ const CalendarioSemanal = ({
   const getCitasEnSlot = (dia, hora) => {
     // Obtener todas las citas para este día y hora
     const citasEnSlot = citas.filter(c => {
-      // Corregir problema de fecha: usar fechaString directamente
+      // Verificar fecha
       if (c.fecha !== dia.fechaString) return false;
       
       const start = c.hora_inicio ? c.hora_inicio.substring(0,5) : (c.hora || null);
       if (!start) return false;
+      
       const startMin = toMinutes(start.padStart(5, '0'));
       const endMin = c.hora_fin ? toMinutes(c.hora_fin.substring(0,5)) : (c.duracion_minutos ? startMin + parseInt(c.duracion_minutos,10) : startMin + slotDurationMin);
       const slotStart = toMinutes(hora.padStart(5, '0'));
-      return slotStart >= startMin && slotStart < endMin;
+      const slotEnd = slotStart + slotDurationMin;
+      
+      // Mejorada: Una cita aparece en un slot si hay intersección entre rangos
+      // La cita se superpone con el slot si:
+      // - La cita empieza antes de que termine el slot Y
+      // - La cita termina después de que empieza el slot
+      const cumple = startMin < slotEnd && endMin > slotStart;
+      
+      return cumple;
     });
 
     if (citasEnSlot.length === 0) return null;
@@ -90,8 +101,12 @@ const CalendarioSemanal = ({
       const startMin = toMinutes(start.padStart(5, '0'));
       const endMin = cita.hora_fin ? toMinutes(cita.hora_fin.substring(0,5)) : (cita.duracion_minutos ? startMin + parseInt(cita.duracion_minutos,10) : startMin + slotDurationMin);
       const slotStart = toMinutes(hora.padStart(5, '0'));
-      const isTop = slotStart === startMin;
-      const isBottom = (slotStart + slotDurationMin) >= endMin;
+      const slotEnd = slotStart + slotDurationMin;
+      
+      // isTop: Este es el primer slot donde se dibuja la cita
+      // Debe ser el slot que contiene el inicio de la cita O el primer slot si la cita empezó antes
+      const isTop = startMin >= slotStart && startMin < slotEnd;
+      const isBottom = endMin <= slotEnd;
       
       // Calcular altura total basada en duración
       const duracionMinutos = cita.duracion_minutos || (endMin - startMin);
@@ -250,18 +265,20 @@ const CalendarioSemanal = ({
                   const citasInfo = getCitasEnSlot(dia, hora);
                   const esHoy = dia.fechaString === new Date().toISOString().split('T')[0];
                   const hayCitas = citasInfo && citasInfo.length > 0;
+                  const esTerapeuta = currentUser?.rol?.id === ROLES.TERAPEUTA;
+                  const puedeHacerClic = !hayCitas && !esTerapeuta; // Solo admin/admisión pueden hacer clic en slots vacíos
                   
                   return (
                     <TableCell 
                       key={`${dia.fechaString}-${hora}`} 
-                      onClick={() => !hayCitas && onSlotClick(dia, hora)}
+                      onClick={() => puedeHacerClic && onSlotClick(dia, hora)}
                       sx={{ 
                         position: 'relative',
                         backgroundColor: 'transparent',
                         border: '1px solid #e0e0e0',
-                        cursor: !hayCitas ? 'pointer' : 'default',
+                        cursor: puedeHacerClic ? 'pointer' : 'default',
                         '&:hover': {
-                          backgroundColor: !hayCitas ? '#f5f5f5' : 'transparent'
+                          backgroundColor: puedeHacerClic ? '#f5f5f5' : 'transparent'
                         }
                       }}
                     >
@@ -351,7 +368,7 @@ const CalendarioSemanal = ({
                                 fontSize: '0.6rem',
                                 fontWeight: 'bold'
                               }}>
-                                {formatearHora(hora)}-{obtenerHoraFin(cita)}
+                                {formatearHora(cita.hora_inicio ? cita.hora_inicio.substring(0, 5) : hora)}-{obtenerHoraFin(cita)}
                               </Typography>
                               <Chip
                                 label={`${cita.duracion_minutos || 60}m`}
