@@ -19,6 +19,11 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Footer() {
   const navigate = useNavigate();
+   // Función para navegar y hacer scroll al inicio
+  const handleNavigate = (path) => {
+    navigate(path);
+    window.scrollTo(0, 0);
+  };
  
   return (
     <footer id="footer" className="footer">
@@ -92,7 +97,7 @@ export default function Footer() {
                     href="#" 
                     onClick={(e) => { 
                       e.preventDefault(); 
-                      navigate('libro-reclamaciones'); 
+                      handleNavigate('/libro-reclamaciones');
                     }}
                     style={{ 
                       display: 'inline-block', 
@@ -128,27 +133,42 @@ export default function Footer() {
               <h4>Legales</h4>
               <ul>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/registro-paciente'); }}>
+                  <a href="#" onClick={(e) => { 
+                    e.preventDefault(); 
+                    handleNavigate('/registro-paciente');
+                  }}>
                     Registro de Paciente
                   </a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/trabaja-nosotros'); }}>
+                  <a href="#" onClick={(e) => { 
+                    e.preventDefault(); 
+                    handleNavigate('/trabaja-nosotros');
+                  }}>
                     Trabaja con Nosotros
                   </a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/terminos-condiciones'); }}>
+                  <a href="#" onClick={(e) => { 
+                    e.preventDefault(); 
+                    handleNavigate('/terminos-condiciones');
+                  }}>
                     Términos y Condiciones
                   </a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/politica-privacidad'); }}>
+                  <a href="#" onClick={(e) => { 
+                    e.preventDefault(); 
+                    handleNavigate('/politica-privacidad');
+                  }}>
                     Política de Privacidad
                   </a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); navigate('/reglamento-interno'); }}>
+                  <a href="#" onClick={(e) => { 
+                    e.preventDefault(); 
+                    handleNavigate('/reglamento-interno');
+                  }}>
                     Reglamento Interno para Clientes
                   </a>
                 </li>

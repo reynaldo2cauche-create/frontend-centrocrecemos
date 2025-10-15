@@ -10,6 +10,7 @@ const menuItems = [
   { text: 'Pacientes', path: '/intranet/lista-pacientes' },
   { text: 'Reportes', path: '/intranet/reportes-evaluaciones' },
   { text: 'Usuarios', path: '/intranet/usuarios' },  
+  { text: 'Postulaciones', path: '/intranet/postulaciones', adminOnly: true },
 ];
 
 const TopMenu = () => {

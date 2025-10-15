@@ -20,7 +20,7 @@ import  AdultoTerapiaParejaPage  from '../pages/service-adulto/AdultoTerapiaPare
 import  AdultoTerapiaFamiliarPage  from '../pages/service-adulto/AdultoTerapiaFamiliarPage';
 import  AdultoTerapiaLenguajePage  from '../pages/service-adulto/AdultoTerapiaLenguajePage';
 import { TerminosCondiciones } from '../pages/TerminosCondiciones';
-import { TrabajaNosotros } from '../pages/TrabajaNosotros';
+import  TrabajaNosotros  from '../pages/TrabajaNosotros';
 import  TerapiaAprendizajePage  from '../pages/services-infantil/TerapiaAprendizajePage';
 import { ListaPacientes } from '../pages/ListaPacientes';
 import Preguntas from '../pages/Preguntas';
@@ -37,7 +37,8 @@ import ReglamentoInterno from '../pages/ReglamentoInterno';
 import PoliticaPrivacidad from '../pages/PoliticaPrivacidad';
 import Mantenimiento from '../pages/Mantenimiento';
 import LibroReclamaciones from '../pages/LibroReclamaciones';
-import { LibroReclamacionesDashboard } from '../pages/LibroReclamacionesDashboard';
+
+import PostulacionesDashboard from '../pages/PostulacionesDashboard';
 
 
 export const AppRouter = () => {
@@ -71,11 +72,13 @@ export const AppRouter = () => {
             <><TopMenu /><Agenda /></>
           </PrivateRoute>
         } />
-        <Route path="/intranet/libro-reclamaciones" element={
+        <Route path="/intranet/postulaciones" element={
           <PrivateRoute>
-            <LibroReclamacionesDashboard />
+            <PostulacionesDashboard />
           </PrivateRoute>
         } />
+      
+      
         
         <Route path="/editar-paciente/:id" element={<><TopMenu /><EditarPacientePage /></>} />
         <Route path="/preguntas" element={<Preguntas />} />
