@@ -6,6 +6,7 @@ import { useState } from 'react';
 export default function HomePage() {
 
  const [currentImage, setCurrentImage] = useState(0);
+  const [showPopup, setShowPopup] = useState(false);
   
   const heroImages = [
     '/assets/img/index/Carrusel servicios.png',
@@ -13,10 +14,14 @@ export default function HomePage() {
     
   ];
 
+  
 
  useEffect(() => {
   initializePageScripts();
-  
+   // Mostrar el popup después de un pequeño delay cuando la página cargue
+    const popupTimer = setTimeout(() => {
+      setShowPopup(true);
+    }, 1000); 
   const tabs = document.querySelectorAll('.quick-tab');
   const contents = document.querySelectorAll('.area-content');
   
@@ -69,9 +74,40 @@ export default function HomePage() {
     });
   };
 }, [heroImages.length]);
+ const closePopup = () => {
+    setShowPopup(false);
+  };
+
+
 
   return (
     <main className="main">
+       {/* Popup/Promo Modal */}
+      {showPopup && (
+        <div className="promo-popup-overlay">
+          <div className="promo-popup-container" data-aos="zoom-in">
+            <div className="promo-popup-content">
+              <button 
+                className="promo-popup-close" 
+                onClick={closePopup}
+                aria-label="Cerrar promoción"
+              >
+                <i className="bi bi-x-lg"></i>
+              </button>
+              
+              <div className="promo-image-container">
+                <img 
+                  src="/assets/img/index/Dia-Mundial-de-la-Salud-Mental.png" // Cambia por la ruta de tu imagen promocional
+                  alt="Promoción especial - Centro Crecemos"
+                  className="promo-image"
+                />
+              </div>
+              
+        
+            </div>
+          </div>
+        </div>
+      )}
   <section id="hero" className="hero section" style={{ paddingTop: '150px' }}>
       <div className="container" data-aos="fade-up" data-aos-delay="100">
         <div className="row align-items-center">
@@ -96,10 +132,10 @@ export default function HomePage() {
 
               <div className="hero-buttons">
                 <a href="/contactanos" className="btn btn-primary me-0 me-sm-2 mx-1">Reservar Cita</a>
-                <a href="#" className="btn btn-link mt-2 mt-sm-0 glightbox">
+                {/* <a href="#" className="btn btn-link mt-2 mt-sm-0 glightbox">
                   <i className="bi bi-play-circle me-1"></i>
                   Conoce Más
-                </a>
+                </a> */}
               </div>
             </div>
           </div>
@@ -388,7 +424,7 @@ export default function HomePage() {
         </div>
       </section>
 
-     {/* Alianzas Section */}
+      {/* Alianzas Section */}
 <section id="alianzas" className="clients section">
   <div className="container" data-aos="fade-up" data-aos-delay="100">
     <div className="section-title text-center mb-5">
@@ -396,7 +432,7 @@ export default function HomePage() {
       <p>Gracias a nuestros <strong>convenios con universidades e instituciones</strong>, podemos garantizar una mayor viabilidad en la realización de <strong>prácticas profesionales y especializaciones</strong> enfocadas a mejorar su formación, brindando terapias actualizadas y efectivas. Así mismo nuestras alianzas con otras instituciones nos permite una adecuada derivación de nuestros pacientes.</p>
     </div>
 
-    <div className="swiper init-swiper">
+    <div className="swiper init-swiper" style={{ paddingBottom: '60px' }}>
       <script type="application/json" className="swiper-config" dangerouslySetInnerHTML={{
         __html: JSON.stringify({
           loop: true,
@@ -434,7 +470,7 @@ export default function HomePage() {
           }
         })
       }} />
-      <div className="swiper-wrapper align-items-center">
+      <div className="swiper-wrapper align-items-center" style={{ marginBottom: '50px' }}>
         {[
           { img: '/assets/img/index/Logo alianzas.png', name: 'Vaxa - Desarrollo Web e Historias Clinicas' },
           { img: '/assets/img/index/san_marcos.png', name: 'Universidad Mayor de San Marcos' },
@@ -448,9 +484,29 @@ export default function HomePage() {
           { img: '/assets/img/index/logo_PEDIATRIKIS.png', name: 'Pediatriks' },
           { img: '/assets/img/index/fisioestudio360.png', name: 'Fisioestudio 360' }
         ].map((ally, index) => (
-          <div key={index} className="swiper-slide text-center">
-            <img src={ally.img} className="img-fluid" alt={ally.name} style={{ maxHeight: '80px', objectFit: 'contain' }} />
-            <h6 className="mt-2">{ally.name}</h6>
+          <div key={index} className="swiper-slide text-center" style={{ padding: '20px 10px' }}>
+            <div style={{ 
+              height: '180px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              marginBottom: '15px'
+            }}>
+              <img 
+                src={ally.img} 
+                className="img-fluid" 
+                alt={ally.name} 
+                style={{ 
+                  maxHeight: '180px', 
+                  maxWidth: '280px',
+                  minHeight: '120px',
+                  objectFit: 'contain',
+                  width: 'auto',
+                  height: 'auto'
+                }} 
+              />
+            </div>
+            <h6 className="mt-2" style={{ fontSize: '0.9rem', lineHeight: '1.3' }}>{ally.name}</h6>
           </div>
         ))}
       </div>
@@ -458,8 +514,6 @@ export default function HomePage() {
     </div>
   </div>
 </section>
-
-  
     </main>
   );
 }

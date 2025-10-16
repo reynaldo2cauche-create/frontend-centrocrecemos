@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function NavBar() {
   const [mobileNavActive, setMobileNavActive] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleMobileNav = () => {
     setMobileNavActive(!mobileNavActive);
@@ -30,11 +31,22 @@ export default function NavBar() {
     }
   };
 
-  // Toggle para mobile
+  // Toggle para mobile - solo el ícono
   const handleDropdownToggle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (window.innerWidth < 1200) {
-      e.preventDefault();
       setDropdownOpen(!dropdownOpen);
+    }
+  };
+
+  // Manejar clic en el link de Servicios
+  const handleServiciosClick = () => {
+    if (window.innerWidth >= 1200) {
+      closeMobileNav();
+    } else {
+      // En mobile, también cerrar el nav después de navegar
+      closeMobileNav();
     }
   };
 
@@ -100,9 +112,9 @@ export default function NavBar() {
                 onMouseLeave={handleMouseLeave}
               >
                 <Link 
-                  to="/servicios" 
+                  to="/servicios"
                   className={isServiciosActive ? 'active' : ''}
-                  onClick={closeMobileNav}
+                  onClick={handleServiciosClick}
                 >
                   <span>Servicios</span>
                   <i 

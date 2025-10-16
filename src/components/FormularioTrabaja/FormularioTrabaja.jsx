@@ -1,269 +1,515 @@
-// FormularioModal.js
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { TextField, Button, Box, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, InputAdornment, Typography, Snackbar, Alert, CircularProgress } from "@mui/material";
-import { Email, Phone, FileUpload } from "@mui/icons-material";
-import axios from "axios";
-import { ThemePalette } from "../../theme/theme";
+import { useState } from 'react';
+import postulacionesService from '../../services/postulacionesService';
 
-const FormularioTrabaja = ({ modalTitle = "Formulario de Postulación", onCloseModal, cargoPostular = "" }) => {
-  const [file, setFile] = useState(null);
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
-  const [openSnackbar, setOpenSnackbar] = useState(false);  // Controlar la apertura del Snackbar
-  const [responseMessage, setResponseMessage] = useState('');
-  const [responseSuccess, setResponseSuccess] = useState(false);
+const FormularioTrabaja = () => {
+  const [formData, setFormData] = useState({
+    nombre: '',
+    apellido: '',
+    email: '',
+    telefono: '',
+    distrito: '',
+    cargo_postulado: '',
+  });
+  const [cvFile, setCvFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
+  const [errores, setErrores] = useState({});
+  const [mostrarModalExito, setMostrarModalExito] = useState(false);
 
-  const onSubmit = async (data) => {
-    const formData = new FormData();
-    Object.keys(data).forEach((key) => formData.append(key, data[key]));
+  const cargosDisponibles = [
+    'Terapia de Lenguaje',
+    'Terapeuta Ocupacional',
+    'Psicología',
+    'Recepción / Administración',
+    'Practicas Preprofesionales',
+  ];
 
-    if (file) formData.append("documento", file);
+  const distritosDisponibles = [
+    'Ate', 'Barranco', 'Breña', 'Callao', 'Cercado de Lima',
+    'Chaclacayo', 'Chorrillos', 'Cieneguilla', 'Comas', 'El Agustino',
+    'Independencia', 'Jesús María', 'La Molina', 'La Victoria', 'Lince',
+    'Los Olivos', 'Lurigancho', 'Lurín', 'Magdalena del Mar', 'Miraflores',
+    'Pachacámac', 'Pueblo Libre', 'Puente Piedra', 'Rímac', 'San Borja',
+    'San Isidro', 'San Juan de Lurigancho', 'San Juan de Miraflores',
+    'San Luis', 'San Martín de Porres', 'San Miguel', 'Santa Anita',
+    'Santiago de Surco', 'Surquillo', 'Villa El Salvador', 'Villa María del Triunfo',
+  ];
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (errores[name]) {
+      setErrores(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+
+    if (name === 'telefono') {
+      const soloNumeros = value.replace(/\D/g, '');
+      setFormData(prev => ({
+        ...prev,
+        [name]: soloNumeros
+      }));
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    
+    if (errores.cv) {
+      setErrores(prev => ({
+        ...prev,
+        cv: ''
+      }));
+    }
+    
+    if (file) {
+      
+      if (file.type !== 'application/pdf') {
+        setErrores(prev => ({
+          ...prev,
+          cv: 'Solo se permiten archivos PDF'
+        }));
+        e.target.value = '';
+        setCvFile(null);
+        return;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) {
+        setErrores(prev => ({
+          ...prev,
+          cv: 'El archivo no debe superar los 5MB'
+        }));
+        e.target.value = '';
+        setCvFile(null);
+        return;
+      }
+      
+      setCvFile(file);
+      setMensaje({ tipo: '', texto: '' });
+    }
+  };
+
+  const validarFormulario = () => {
+    const nuevosErrores = {};
+
+    if (!formData.nombre.trim()) {
+      nuevosErrores.nombre = 'El nombre es obligatorio';
+    } else if (formData.nombre.trim().length < 2) {
+      nuevosErrores.nombre = 'El nombre debe tener al menos 2 caracteres';
+    }
+
+    if (!formData.apellido.trim()) {
+      nuevosErrores.apellido = 'El apellido es obligatorio';
+    } else if (formData.apellido.trim().length < 2) {
+      nuevosErrores.apellido = 'El apellido debe tener al menos 2 caracteres';
+    }
+
+    if (!formData.email.trim()) {
+      nuevosErrores.email = 'El correo electrónico es obligatorio';
+    } else {
+      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      if (!emailRegex.test(formData.email)) {
+        nuevosErrores.email = 'El correo electrónico no es válido';
+      }
+    }
+
+    if (!formData.telefono.trim()) {
+      nuevosErrores.telefono = 'El número de teléfono es obligatorio';
+    } else if (formData.telefono.length !== 9) {
+      nuevosErrores.telefono = 'El número de teléfono debe tener exactamente 9 dígitos';
+    } else if (!/^9\d{8}$/.test(formData.telefono)) {
+      nuevosErrores.telefono = 'El número debe comenzar con 9';
+    }
+
+    if (!formData.cargo_postulado) {
+      nuevosErrores.cargo_postulado = 'Debe seleccionar un cargo';
+    }
+
+    if (!formData.distrito) {
+      nuevosErrores.distrito = 'Debe seleccionar un distrito';
+    }
+
+    if (!cvFile) {
+      nuevosErrores.cv = 'Debe adjuntar su CV en formato PDF';
+    }
+
+    setErrores(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    console.log('=== INICIANDO ENVÍO DE FORMULARIO ===');
+    
+    if (!validarFormulario()) {
+      setMensaje({
+        tipo: 'error',
+        texto: 'Por favor, corrige los errores en el formulario'
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    setLoading(true);
+    setMensaje({ tipo: '', texto: '' });
 
     try {
-      const response = await axios.post("https://crecemos.com.pe/backend_centroterapias/postulaciones", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const formDataToSend = new FormData();
+      
+      // IMPORTANTE: Agregar campos en el orden correcto
+      formDataToSend.append('nombre', formData.nombre.trim());
+      formDataToSend.append('apellido', formData.apellido.trim());
+      formDataToSend.append('email', formData.email.trim().toLowerCase());
+      formDataToSend.append('telefono', formData.telefono.trim());
+      formDataToSend.append('distrito', formData.distrito);
+      formDataToSend.append('cargo_postulado', formData.cargo_postulado);
+      
+      // El campo 'cv' debe ser el último y coincidir con el nombre en el backend
+      formDataToSend.append('cv', cvFile);
+
+
+      const response = await postulacionesService.crearPostulacion(formDataToSend);
+      
+      // Mostrar modal de éxito
+      setMostrarModalExito(true);
+      
+      // Limpiar formulario
+      setFormData({
+        nombre: '',
+        apellido: '',
+        email: '',
+        telefono: '',
+        distrito: '',
+        cargo_postulado: '',
       });
-      // Si la respuesta es exitosa, muestra el mensaje de éxito
-      setResponseMessage('Postulación guardada con éxito. ¡Gracias por postularte!');
-      setResponseSuccess(true);
+      setCvFile(null);
+      setErrores({});
+      
+      // Limpiar input de archivo
+      const fileInput = document.getElementById('cv-file');
+      if (fileInput) fileInput.value = '';
+      
+      console.log('🎉 FORMULARIO ENVIADO CON ÉXITO');
+      
     } catch (error) {
-      console.error("Error al enviar la postulación", error);
-      setResponseMessage('Hubo un error al guardar la postulación. Intenta nuevamente.');
-      setResponseSuccess(false);  
+      console.error('Error:', error);
+      console.error('Mensaje:', error.message);
+      
+      setMensaje({
+        tipo: 'error',
+        texto: error.message || 'Ocurrió un error al enviar la postulación. Por favor, intenta nuevamente.'
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } finally {
+      setLoading(false);
     }
-    console.log('hola')
-    setOpenSnackbar(true);
-    // Cerrar el modal después de 2 segundos (cuando el Snackbar se está mostrando)
-    setTimeout(() => {
-      onCloseModal();  // Llama a la función para cerrar el modal
-    }, 1000);  // Cierra el modal después de 2 segundos
+  };
+
+  const cerrarModalExito = () => {
+    setMostrarModalExito(false);
   };
 
   return (
     <>
-    <Dialog open onClose={onCloseModal} maxWidth="md" fullWidth>
-      <DialogTitle
-        sx={{
-          textAlign: "center",
-          fontWeight: "bold",
-          fontSize: "1.5rem",
-          color: ThemePalette.BLACK_MEDIUM,
-        }}
-      >
-        {modalTitle}
-      </DialogTitle>
-      <DialogContent >
-        <Typography
-          variant="body2"
-          sx={{
-            textAlign: "center",
-            color: "#555",
-            marginBottom: 2,
-            fontSize: "1rem",
-          }}
-        >
-          Bienvenido a CentroCrecemos. Deje sus datos para poder contactarlo. Gracias por la postulación.
-        </Typography>
-        <Container
-          sx={{
-            padding: 3,
-            backgroundColor: "#fafafa",
-            borderRadius: 2,
-            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Grid container spacing={3}>
-              {/* Campo Nombre */}
-              <Grid item xs={12}>
-                <TextField
-                  label="Nombre"
-                  fullWidth
-                  variant="outlined"
-                  color="primary"
-                  {...register("nombre", { required: "Este campo es obligatorio" })}
-                  error={!!errors.nombre}
-                  helperText={errors.nombre ? errors.nombre.message : ""}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 3,
-                    },
-                  }}
-                />
-              </Grid>
+      <section className="formulario-trabaja-section">
+        <div className="container py-5">
+          <div className="row justify-content-center">
+            <div className="col-lg-10">
+              <div className="formulario-card">
+                <div className="formulario-card-body">
+                  <div className="text-center mb-5">
+                    <h2 className="form-title">
+                      Completa tu Postulación
+                    </h2>
+                    <p className="form-subtitle">
+                      Llena el formulario y adjunta tu CV en formato PDF
+                    </p>
+                  </div>
 
-              {/* Campo Apellido */}
-              <Grid item xs={12}>
-                <TextField
-                  label="Apellido"
-                  fullWidth
-                  variant="outlined"
-                  color="primary"
-                  {...register("apellido", { required: "Este campo es obligatorio" })}
-                  error={!!errors.apellido}
-                  helperText={errors.apellido ? errors.apellido.message : ""}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 3,
-                    },
-                  }}
-                />
-              </Grid>
+                  {mensaje.texto && (
+                    <div
+                      className={`alert alert-${mensaje.tipo === 'success' ? 'success' : 'danger'} alert-dismissible fade show`}
+                      role="alert"
+                    >
+                      {mensaje.texto}
+                      <button
+                        type="button"
+                        className="btn-close"
+                        onClick={() => setMensaje({ tipo: '', texto: '' })}
+                      ></button>
+                    </div>
+                  )}
 
-              {/* Campo Email */}
-              <Grid item xs={12}>
-                <TextField
-                  label="Correo electrónico"
-                  fullWidth
-                  variant="outlined"
-                  type="email"
-                  color="primary"
-                  {...register("email", {
-                    required: "Este campo es obligatorio",
-                    pattern: {
-                      value: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
-                      message: "Email no válido",
-                    },
-                  })}
-                  error={!!errors.email}
-                  helperText={errors.email ? errors.email.message : ""}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Email />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 3,
-                    },
-                  }}
-                />
-              </Grid>
+                  <form onSubmit={handleSubmit} noValidate>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label htmlFor="nombre" className="form-label-trabaja">
+                          Nombre <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className={`form-control-trabaja ${errores.nombre ? 'is-invalid' : ''}`}
+                          id="nombre"
+                          name="nombre"
+                          value={formData.nombre}
+                          onChange={handleInputChange}
+                          disabled={loading}
+                          placeholder="Ingrese su nombre"
+                        />
+                        {errores.nombre && (
+                          <div className="invalid-feedback d-block">
+                            {errores.nombre}
+                          </div>
+                        )}
+                      </div>
 
-              {/* Campo Teléfono */}
-              <Grid item xs={12}>
-                <TextField
-                  label="Teléfono"
-                  fullWidth
-                  variant="outlined"
-                  type="tel"
-                  color="primary"
-                  {...register("telefono")}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Phone />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 3,
-                    },
-                  }}
-                />
-              </Grid>
+                      <div className="col-md-6 mb-3">
+                        <label htmlFor="apellido" className="form-label-trabaja">
+                          Apellido <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className={`form-control-trabaja ${errores.apellido ? 'is-invalid' : ''}`}
+                          id="apellido"
+                          name="apellido"
+                          value={formData.apellido}
+                          onChange={handleInputChange}
+                          disabled={loading}
+                          placeholder="Ingrese su apellido"
+                        />
+                        {errores.apellido && (
+                          <div className="invalid-feedback d-block">
+                            {errores.apellido}
+                          </div>
+                        )}
+                      </div>
 
-              {/* Campo Oculto: Cargo Postulado */}
-              <input
-                type="hidden"
-                value={cargoPostular}
-                {...register("cargo_postulado", { required: "Este campo es obligatorio" })}
-              />
+                      <div className="col-md-6 mb-3">
+                        <label htmlFor="email" className="form-label-trabaja">
+                          Correo Electrónico <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          className={`form-control-trabaja ${errores.email ? 'is-invalid' : ''}`}
+                          id="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="ejemplo@correo.com"
+                          disabled={loading}
+                        />
+                        {errores.email && (
+                          <div className="invalid-feedback d-block">
+                            {errores.email}
+                          </div>
+                        )}
+                      </div>
 
-              {/* Campo de Cargar Archivos */}
-              <Grid item xs={12}>
-                <Button
-                  variant="contained"
-                  component="label"
-                  fullWidth
-                  sx={{
-                    backgroundColor: "#1976d2",
-                    borderRadius: 3,
-                    padding: 1,
-                    fontWeight: "bold",
-                    "&:hover": {
-                      backgroundColor: "#1565c0",
-                    },
-                  }}
-                >
-                  <FileUpload sx={{ marginRight: 1 }} />
-                  Subir Documento
-                  <input
-                    type="file"
-                    hidden
-                    onChange={(e) => setFile(e.target.files[0])}
-                  />
-                </Button>
-                {file && (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      marginTop: 1,
-                      textAlign: "center",
-                      color: "#333",
-                      fontStyle: "italic",
-                    }}
+                      <div className="col-md-6 mb-3">
+                        <label htmlFor="telefono" className="form-label-trabaja">
+                          Teléfono (9 dígitos) <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          className={`form-control-trabaja ${errores.telefono ? 'is-invalid' : ''}`}
+                          id="telefono"
+                          name="telefono"
+                          value={formData.telefono}
+                          onChange={handleInputChange}
+                          maxLength="9"
+                          placeholder="987654321"
+                          disabled={loading}
+                        />
+                        {errores.telefono && (
+                          <div className="invalid-feedback d-block">
+                            {errores.telefono}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="col-12 mb-3">
+                        <label htmlFor="distrito" className="form-label-trabaja">
+                          Distrito <span className="text-danger">*</span>
+                        </label>
+                        <select
+                          className={`form-select-trabaja ${errores.distrito ? 'is-invalid' : ''}`}
+                          id="distrito"
+                          name="distrito"
+                          value={formData.distrito}
+                          onChange={handleInputChange}
+                          disabled={loading}
+                        >
+                          <option value="">Seleccione su distrito</option>
+                          {distritosDisponibles.map((distrito) => (
+                            <option key={distrito} value={distrito}>
+                              {distrito}
+                            </option>
+                          ))}
+                        </select>
+                        {errores.distrito && (
+                          <div className="invalid-feedback d-block">
+                            {errores.distrito}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="col-12 mb-3">
+                        <label htmlFor="cargo_postulado" className="form-label-trabaja">
+                          Cargo al que postula <span className="text-danger">*</span>
+                        </label>
+                        <select
+                          className={`form-select-trabaja ${errores.cargo_postulado ? 'is-invalid' : ''}`}
+                          id="cargo_postulado"
+                          name="cargo_postulado"
+                          value={formData.cargo_postulado}
+                          onChange={handleInputChange}
+                          disabled={loading}
+                        >
+                          <option value="">Seleccione un cargo</option>
+                          {cargosDisponibles.map((cargo) => (
+                            <option key={cargo} value={cargo}>
+                              {cargo}
+                            </option>
+                          ))}
+                        </select>
+                        {errores.cargo_postulado && (
+                          <div className="invalid-feedback d-block">
+                            {errores.cargo_postulado}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="col-12 mb-4">
+                        <label htmlFor="cv-file" className="form-label-trabaja">
+                          Adjuntar CV (PDF) <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="file"
+                          className={`form-control-trabaja ${errores.cv ? 'is-invalid' : ''}`}
+                          id="cv-file"
+                          accept=".pdf,application/pdf"
+                          onChange={handleFileChange}
+                          disabled={loading}
+                        />
+                        <div className="form-text-trabaja">
+                          Formato permitido: PDF. Tamaño máximo: 5MB
+                        </div>
+                        {errores.cv && (
+                          <div className="invalid-feedback d-block">
+                            {errores.cv}
+                          </div>
+                        )}
+                        {cvFile && !errores.cv && (
+                          <div className="mt-2 file-selected-trabaja">
+                            <i className="bi bi-check-circle me-2"></i>
+                            Archivo seleccionado: {cvFile.name} ({(cvFile.size / 1024 / 1024).toFixed(2)} MB)
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="col-12">
+                        <button
+                          type="submit"
+                          className="btn-submit-trabaja"
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <>
+                              <span className="spinner-border spinner-border-sm me-2"></span>
+                              Enviando...
+                            </>
+                          ) : (
+                            <>
+                              <i className="bi bi-send me-2"></i>
+                              Enviar Postulación
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Modal de Éxito */}
+      {mostrarModalExito && (
+        <>
+          <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content border-0 shadow-lg">
+                <div className="modal-body text-center p-5">
+                  <div className="mb-4">
+                    <div className="success-checkmark mx-auto mb-3" style={{ width: '80px', height: '80px' }}>
+                      <div className="check-icon" style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '50%',
+                        backgroundColor: '#d4edda',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        animation: 'scaleIn 0.3s ease-in-out'
+                      }}>
+                        <i className="bi bi-check-circle-fill" style={{ fontSize: '50px', color: '#28a745' }}></i>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <h3 className="mb-3" style={{ color: '#28a745', fontWeight: '700' }}>
+                    ¡Postulación Enviada con Éxito!
+                  </h3>
+                  
+                  <p className="text-muted mb-4" style={{ fontSize: '1.1rem' }}>
+                    Gracias por tu interés en formar parte de nuestro equipo. 
+                    Hemos recibido tu postulación correctamente.
+                  </p>
+                  
+                  <div className="alert alert-info mx-auto" style={{ maxWidth: '400px' }}>
+                    <i className="bi bi-info-circle me-2"></i>
+                    <strong>Próximos pasos:</strong>
+                    <p className="mb-0 mt-2 small">
+                      Nuestro equipo de recursos humanos revisará tu perfil y 
+                      nos pondremos en contacto contigo dentro de los próximos días.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn btn-success btn-lg mt-4 px-5"
+                    onClick={cerrarModalExito}
+                    style={{ borderRadius: '50px', fontWeight: '600' }}
                   >
-                    Archivo seleccionado: {file.name}
-                  </Typography>
-                )}
-              </Grid>
-
-              {/* Botón de Enviar */}
-              <Grid item xs={12}>
-                <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    disabled={isSubmitting}  // Deshabilitar el botón mientras se envía el formulario
-                    sx={{
-                      padding: "12px 30px",
-                      borderRadius: "50px",
-                      fontWeight: "bold",
-                      backgroundColor: "#1976d2",
-                      "&:hover": {
-                        backgroundColor: "#1565c0",
-                      },
-                    }}
-                  >
-                    {isSubmitting ? (  // Muestra el spinner mientras el formulario está enviando
-                      <CircularProgress size={24} sx={{ color: 'white' }} />
-                    ) : (
-                      "Enviar Postulación"
-                    )}
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
-          </form>
-        </Container>
-      </DialogContent>
-    </Dialog>
-
-    {/* Snackbar para mostrar el mensaje de éxito o error */}
-    <Snackbar
-      open={openSnackbar}
-      autoHideDuration={6000}  // Se cierra automáticamente después de 6 segundos
-      onClose={() => setOpenSnackbar(false)}
-      anchorOrigin={{
-        vertical: 'top',  // Parte superior de la pantalla
-        horizontal: 'right',  // Parte derecha de la pantalla
-      }}
-  >
-    <Alert
-      onClose={() => setOpenSnackbar(false)}
-      severity={responseSuccess ? "success" : "error"}
-      sx={{ width: '100%' }}
-    >
-      {responseMessage}
-    </Alert>
-  </Snackbar>
-  </>
-
+                    Entendido
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <style>
+            {`
+              @keyframes scaleIn {
+                0% { transform: scale(0); }
+                50% { transform: scale(1.1); }
+                100% { transform: scale(1); }
+              }
+            `}
+          </style>
+        </>
+      )}
+    </>
   );
 };
 
