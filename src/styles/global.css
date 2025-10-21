@@ -4655,3 +4655,367 @@ section,
     padding: 15px;
   }
 }
+
+/* Estilos para el popup promocional */
+.promo-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+}
+
+.promo-popup-container {
+  max-width: 90%;
+  max-height: 90%;
+  position: relative;
+}
+
+.promo-popup-content {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.promo-popup-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.promo-popup-close:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+.promo-image-container {
+  max-width: 600px;
+  max-height: 600px;
+  overflow: hidden;
+}
+
+.promo-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.promo-popup-actions {
+  padding: 20px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+.promo-popup-actions .btn {
+  min-width: 120px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .promo-popup-container {
+    max-width: 95%;
+    max-height: 95%;
+  }
+  
+  .promo-popup-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .promo-popup-actions .btn {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   ESTILOS PARA TRABAJA CON NOSOTROS
+======================================== */
+
+/* Hero Section */
+.hero-trabaja {
+  background: linear-gradient(135deg, #c263f9 0%, #d857d0 100%);
+  padding: 140px 20px 80px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-trabaja .bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 1;
+}
+
+.hero-trabaja .bubble1 {
+  width: 100px;
+  height: 100px;
+  top: 10%;
+  left: 5%;
+  animation: float-bubble1 15s linear infinite alternate;
+}
+
+.hero-trabaja .bubble2 {
+  width: 70px;
+  height: 70px;
+  top: 50%;
+  right: 10%;
+  animation: float-bubble2 18s linear infinite alternate;
+}
+
+.hero-trabaja .bubble3 {
+  width: 50px;
+  height: 50px;
+  bottom: 20%;
+  left: 80%;
+  animation: float-bubble3 20s linear infinite alternate;
+}
+
+@keyframes float-bubble1 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(50px, 30px); }
+  100% { transform: translate(-30px, 50px); }
+}
+
+@keyframes float-bubble2 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-40px, 40px); }
+  100% { transform: translate(30px, -30px); }
+}
+
+@keyframes float-bubble3 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-50px, -30px); }
+  100% { transform: translate(40px, 20px); }
+}
+
+.hero-trabaja .hero-title {
+  font-size: 3.2rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 2;
+}
+
+.hero-trabaja .hero-subtitle {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto 30px;
+  line-height: 1.7;
+  opacity: 0.95;
+  z-index: 2;
+  position: relative;
+}
+
+.hero-trabaja .badge-custom {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 20px;
+  display: inline-block;
+  margin: 5px;
+}
+
+/* Beneficios Section */
+.beneficios-section {
+  padding: 80px 0;
+  background: #ffffff;
+}
+
+.section-title-trabaja {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--heading-color);
+  margin-bottom: 15px;
+}
+
+.section-subtitle {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.benefit-card {
+  border: 2px solid transparent;
+  border-radius: 15px;
+  padding: 30px;
+  height: 100%;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  background: white;
+}
+
+.benefit-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(194, 99, 249, 0.3);
+  border-color: var(--accent-color);
+}
+
+.benefit-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #c263f9, rgba(194, 99, 249, 0.8));
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 25px;
+}
+
+.benefit-icon i {
+  font-size: 2rem;
+  color: white;
+}
+
+.benefit-card h5 {
+  color: var(--heading-color);
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.benefit-card p {
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Formulario Section */
+.formulario-trabaja-section {
+  padding: 80px 0;
+  background: #f8f9fa;
+}
+
+.formulario-card {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  background: white;
+}
+
+.formulario-card-body {
+  padding: 50px;
+}
+
+.form-title {
+  color: var(--accent-color);
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.form-subtitle {
+  color: #666;
+  font-size: 1.05rem;
+}
+
+.form-label-trabaja {
+  font-weight: 600;
+  color: var(--heading-color);
+  margin-bottom: 8px;
+}
+
+.form-control-trabaja,
+.form-select-trabaja {
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 12px 15px;
+  transition: all 0.3s ease;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.form-control-trabaja:focus,
+.form-select-trabaja:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem rgba(194, 99, 249, 0.25);
+  outline: none;
+}
+
+.form-text-trabaja {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-top: 5px;
+}
+
+.file-selected-trabaja {
+  color: #28a745;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.btn-submit-trabaja {
+  background: linear-gradient(135deg, #c263f9, #d857d0);
+  border: none;
+  color: white;
+  padding: 15px 40px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  width: 100%;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-submit-trabaja:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(194, 99, 249, 0.4);
+}
+
+.btn-submit-trabaja:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-trabaja {
+    padding: 100px 20px 60px;
+  }
+
+  .hero-trabaja .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-trabaja .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .formulario-card-body {
+    padding: 30px 20px;
+  }
+
+  .section-title-trabaja {
+    font-size: 2rem;
+  }
+
+  .benefit-card {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+}
