@@ -10,7 +10,7 @@ export default function HomePage() {
   
   const heroImages = [
     '/assets/img/index/Carrusel servicios.png',
-    '/assets/img/index/Psicologia Infantil.png'
+    '/assets/img/index/carrusel psicologia infantil.png',
     
   ];
 
@@ -82,7 +82,7 @@ export default function HomePage() {
 
   return (
     <main className="main">
-       {/* Popup/Promo Modal */}
+       {/* Popup/Promo Modal
       {showPopup && (
         <div className="promo-popup-overlay">
           <div className="promo-popup-container" data-aos="zoom-in">
@@ -107,7 +107,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
   <section id="hero" className="hero section" style={{ paddingTop: '150px' }}>
       <div className="container" data-aos="fade-up" data-aos-delay="100">
         <div className="row align-items-center">
@@ -482,7 +482,8 @@ export default function HomePage() {
           { img: '/assets/img/index/mamalama.png', name: 'Mamalama' },
           { img: '/assets/img/index/logo-upn-nuevo.png', name: 'Universidad Privada del Norte' },
           { img: '/assets/img/index/logo_PEDIATRIKIS.png', name: 'Pediatriks' },
-          { img: '/assets/img/index/fisioestudio360.png', name: 'Fisioestudio 360' }
+          { img: '/assets/img/index/fisioestudio360.png', name: 'Fisioestudio 360' },
+          { img: '/assets/img/index/UCH.png', name: 'Universidad de Ciencias y Humanidades' }
         ].map((ally, index) => (
           <div key={index} className="swiper-slide text-center" style={{ padding: '20px 10px' }}>
             <div style={{ 
