@@ -38,6 +38,7 @@ import PoliticaPrivacidad from '../pages/PoliticaPrivacidad';
 import Mantenimiento from '../pages/Mantenimiento';
 import LibroReclamaciones from '../pages/LibroReclamaciones';
 import { LibroReclamacionesDashboard } from '../pages/LibroReclamacionesDashboard';
+import GestionPopup from '../pages/GestionPopup';
 
 
 export const AppRouter = () => {
@@ -74,6 +75,11 @@ export const AppRouter = () => {
         <Route path="/intranet/libro-reclamaciones" element={
           <PrivateRoute>
             <LibroReclamacionesDashboard />
+          </PrivateRoute>
+        } />
+        <Route path="/intranet/popup-promocional" element={
+          <PrivateRoute>
+            <GestionPopup />
           </PrivateRoute>
         } />
         

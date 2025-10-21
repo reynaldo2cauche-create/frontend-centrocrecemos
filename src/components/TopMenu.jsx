@@ -9,7 +9,8 @@ const menuItems = [
   { text: 'Agenda', path: '/intranet/agenda' },
   { text: 'Pacientes', path: '/intranet/lista-pacientes' },
   { text: 'Reportes', path: '/intranet/reportes-evaluaciones' },
-  { text: 'Usuarios', path: '/intranet/usuarios' },  
+  { text: 'Usuarios', path: '/intranet/usuarios' },
+  { text: 'Popup Inicio', path: '/intranet/popup-promocional' },
 ];
 
 const TopMenu = () => {
