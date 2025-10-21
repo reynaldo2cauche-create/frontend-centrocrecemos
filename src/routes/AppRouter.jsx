@@ -37,6 +37,8 @@ import ReglamentoInterno from '../pages/ReglamentoInterno';
 import PoliticaPrivacidad from '../pages/PoliticaPrivacidad';
 import Mantenimiento from '../pages/Mantenimiento';
 import LibroReclamaciones from '../pages/LibroReclamaciones';
+import VerificarDocumentos from '../pages/VerificarDocumento';
+import ArchivosOficiales from '../pages/ArchivosOficiales';
 
 import PostulacionesDashboard from '../pages/PostulacionesDashboard';
 
@@ -77,6 +79,12 @@ export const AppRouter = () => {
             <PostulacionesDashboard />
           </PrivateRoute>
         } />
+         <Route path="/intranet/archivos-oficiales" element={
+          <PrivateRoute>
+            <ArchivosOficiales
+           />
+          </PrivateRoute>
+        } />
       
       
         
@@ -109,6 +117,7 @@ export const AppRouter = () => {
           <Route path="trabaja-nosotros" element={<TrabajaNosotros />} />
           <Route path="registro-paciente" element={<RegistroPacientePage />} />
           <Route path="libro-reclamaciones" element={<LibroReclamaciones />} />
+          <Route path="verificar-documento" element={<VerificarDocumentos />} />
           <Route path="loading" element={<Loading />} />
           <Route path="*" element={<ErrorPage />} />
         </Route>
