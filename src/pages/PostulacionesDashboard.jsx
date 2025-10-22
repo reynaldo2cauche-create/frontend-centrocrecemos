@@ -58,6 +58,7 @@ import {
 } from '@mui/icons-material';
 import postulacionesService from '../services/postulacionesService';
 import TopMenu from '../components/TopMenu';
+import {getDistritos} from '../services/catalogoService'; // ✅ Importar el servicio
 
 const PostulacionesDashboard = () => {
   const [postulaciones, setPostulaciones] = useState([]);
@@ -81,8 +82,13 @@ const PostulacionesDashboard = () => {
   });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+    // ✅ NUEVOS ESTADOS PARA CATÁLOGOS DINÁMICOS
+  const [estadosDisponibles, setEstadosDisponibles] = useState([]);
+  const [cargosDisponibles, setCargosDisponibles] = useState([]);
+  const [distritosDisponibles, setDistritosDisponibles] = useState([]);
+  const [cargandoCatalogos, setCargandoCatalogos] = useState(true);
 
-  const estadosDisponibles = ['Nuevo', 'En revisión', 'Contactado', 'Por entrevistar', 'Rechazado', 'Contratado'];
+
   const coloresEstado = {
     'Nuevo': 'warning',
     'En revisión': 'info',
@@ -93,9 +99,37 @@ const PostulacionesDashboard = () => {
   };
 
   useEffect(() => {
+    cargarCatalogos();
     cargarPostulaciones();
     cargarEstadisticas();
   }, []);
+
+const cargarCatalogos = async () => {
+  try {
+    setCargandoCatalogos(true);
+    
+    const [estadosData, cargosData, distritosData] = await Promise.all([
+      postulacionesService.obtenerEstados(),
+      postulacionesService.obtenerCargos(),
+      getDistritos(),
+    ]);
+
+    // ✅ Guardar los objetos completos
+    setEstadosDisponibles(estadosData);
+    setCargosDisponibles(cargosData);
+    setDistritosDisponibles(distritosData);
+
+    console.log('✅ Catálogos cargados para filtros:', { 
+      estados: estadosData.length,
+      cargos: cargosData.length, 
+      distritos: distritosData.length 
+    });
+  } catch (error) {
+    console.error('❌ Error al cargar catálogos:', error);
+  } finally {
+    setCargandoCatalogos(false);
+  }
+};
 
   const cargarPostulaciones = async () => {
     try {
@@ -397,8 +431,9 @@ const PostulacionesDashboard = () => {
                     />
                   </Grid>
 
+                  {/* ✅ Select de Estado dinámico */}
                   <Grid item xs={12} md={2}>
-                    <FormControl fullWidth size="small">
+                    <FormControl fullWidth size="small" disabled={cargandoCatalogos}>
                       <InputLabel>Estado</InputLabel>
                       <Select
                         value={filtros.estado_postulacion}
@@ -407,30 +442,44 @@ const PostulacionesDashboard = () => {
                       >
                         <MenuItem value="">Todos</MenuItem>
                         {estadosDisponibles.map(estado => (
-                          <MenuItem key={estado} value={estado}>{estado}</MenuItem>
+                          <MenuItem key={estado.id} value={estado.descripcion}>{estado.descripcion}</MenuItem>
                         ))}
                       </Select>
                     </FormControl>
                   </Grid>
 
+                  {/* ✅ Select de Distrito dinámico */}
                   <Grid item xs={12} md={2}>
-                    <TextField
-                      fullWidth
-                      placeholder="Distrito"
-                      value={filtros.distrito}
-                      onChange={(e) => setFiltros({ ...filtros, distrito: e.target.value })}
-                      size="small"
-                    />
+                    <FormControl fullWidth size="small" disabled={cargandoCatalogos}>
+                      <InputLabel>Distrito</InputLabel>
+                      <Select
+                        value={filtros.distrito}
+                        label="Distrito"
+                        onChange={(e) => setFiltros({ ...filtros, distrito: e.target.value })}
+                      >
+                        <MenuItem value="">Todos</MenuItem>
+                        {distritosDisponibles.map(distrito => (
+                          <MenuItem key={distrito.id} value={distrito.nombre}>{distrito.nombre}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   </Grid>
 
+                  {/* ✅ Select de Cargo dinámico */}
                   <Grid item xs={12} md={2}>
-                    <TextField
-                      fullWidth
-                      placeholder="Cargo"
-                      value={filtros.cargo_postulado}
-                      onChange={(e) => setFiltros({ ...filtros, cargo_postulado: e.target.value })}
-                      size="small"
-                    />
+                    <FormControl fullWidth size="small" disabled={cargandoCatalogos}>
+                      <InputLabel>Cargo</InputLabel>
+                      <Select
+                        value={filtros.cargo_postulado}
+                        label="Cargo"
+                        onChange={(e) => setFiltros({ ...filtros, cargo_postulado: e.target.value })}
+                      >
+                        <MenuItem value="">Todos</MenuItem>
+                        {cargosDisponibles.map(cargo => (
+                          <MenuItem key={cargo.id} value={cargo.descripcion}>{cargo.descripcion}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   </Grid>
                 </Grid>
 
@@ -613,7 +662,7 @@ const PostulacionesDashboard = () => {
           )}
         </Card>
 
-        {/* Modal Perfil y Notas */}
+      {/* Modal Perfil y Notas */}
         <Dialog
           open={!!modalPerfil}
           onClose={() => setModalPerfil(null)}
@@ -697,11 +746,12 @@ const PostulacionesDashboard = () => {
                         value={modalPerfil.estado_postulacion}
                         onChange={(e) => handleCambiarEstado(modalPerfil.id_postulacion, e.target.value)}
                       >
+                        {/* ✅ CORREGIDO: Ahora usa estado.id como key y estado.descripcion como valor */}
                         {estadosDisponibles.map(estado => (
-                          <MenuItem key={estado} value={estado}>
+                          <MenuItem key={estado.id} value={estado.descripcion}>
                             <Chip
-                              label={estado}
-                              color={coloresEstado[estado]}
+                              label={estado.descripcion}
+                              color={coloresEstado[estado.descripcion]}
                               size="small"
                               sx={{ fontWeight: 500 }}
                             />
@@ -778,7 +828,8 @@ const PostulacionesDashboard = () => {
                     </Alert>
                   ) : (
                     <List sx={{ p: 0 }}>
-                      {comentarios.map((comentario, index) => (
+                      {/* ✅ ESTE YA ESTABA BIEN - Tiene key único con id_comentario */}
+                      {comentarios.map((comentario) => (
                         <ListItem
                           key={comentario.id_comentario}
                           sx={{
