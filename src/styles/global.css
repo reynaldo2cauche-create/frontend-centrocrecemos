@@ -5019,3 +5019,25 @@ section,
     margin-bottom: 20px;
   }
 }
+
+/* Mejora el comportamiento del scroll en iOS/Safari */
+html {
+  scroll-behavior: auto; /* Evita conflictos con smooth scroll en iOS */
+  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+}
+
+body {
+  overflow-x: hidden; /* Evita scroll horizontal no deseado */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Previene el rubber banding en iOS si es necesario */
+body.no-bounce {
+  overscroll-behavior-y: none;
+}
+/* Para Safari/iOS que a veces ignora scroll-behavior */
+@supports (-webkit-overflow-scrolling: touch) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
