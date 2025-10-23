@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // ✅ Agregado useRef
 import {
   Box,
   Card,
@@ -58,7 +58,7 @@ import {
 } from '@mui/icons-material';
 import postulacionesService from '../services/postulacionesService';
 import TopMenu from '../components/TopMenu';
-import {getDistritos} from '../services/catalogoService'; // ✅ Importar el servicio
+import {getDistritos} from '../services/catalogoService';
 
 const PostulacionesDashboard = () => {
   const [postulaciones, setPostulaciones] = useState([]);
@@ -82,12 +82,13 @@ const PostulacionesDashboard = () => {
   });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-    // ✅ NUEVOS ESTADOS PARA CATÁLOGOS DINÁMICOS
   const [estadosDisponibles, setEstadosDisponibles] = useState([]);
   const [cargosDisponibles, setCargosDisponibles] = useState([]);
   const [distritosDisponibles, setDistritosDisponibles] = useState([]);
   const [cargandoCatalogos, setCargandoCatalogos] = useState(true);
-
+  
+  // ✅ NUEVO: Control de inicialización
+  const inicializadoRef = useRef(false);
 
   const coloresEstado = {
     'Nuevo': 'warning',
@@ -98,38 +99,43 @@ const PostulacionesDashboard = () => {
     'Contratado': 'success'
   };
 
+  // ✅ SOLUCIÓN: useEffect con control de duplicados
   useEffect(() => {
-    cargarCatalogos();
-    cargarPostulaciones();
-    cargarEstadisticas();
+    // Evita ejecución duplicada en React Strict Mode
+    if (inicializadoRef.current) return;
+    inicializadoRef.current = true;
+
+    const inicializar = async () => {
+      await cargarCatalogos();
+      await Promise.all([
+        cargarPostulaciones(),
+        cargarEstadisticas()
+      ]);
+    };
+    
+    inicializar();
   }, []);
 
-const cargarCatalogos = async () => {
-  try {
-    setCargandoCatalogos(true);
-    
-    const [estadosData, cargosData, distritosData] = await Promise.all([
-      postulacionesService.obtenerEstados(),
-      postulacionesService.obtenerCargos(),
-      getDistritos(),
-    ]);
+  const cargarCatalogos = async () => {
+    try {
+      setCargandoCatalogos(true);
+      
+      const [estadosData, cargosData, distritosData] = await Promise.all([
+        postulacionesService.obtenerEstados(),
+        postulacionesService.obtenerCargos(),
+        getDistritos(),
+      ]);
 
-    // ✅ Guardar los objetos completos
-    setEstadosDisponibles(estadosData);
-    setCargosDisponibles(cargosData);
-    setDistritosDisponibles(distritosData);
+      setEstadosDisponibles(estadosData);
+      setCargosDisponibles(cargosData);
+      setDistritosDisponibles(distritosData);
 
-    console.log('✅ Catálogos cargados para filtros:', { 
-      estados: estadosData.length,
-      cargos: cargosData.length, 
-      distritos: distritosData.length 
-    });
-  } catch (error) {
-    console.error('❌ Error al cargar catálogos:', error);
-  } finally {
-    setCargandoCatalogos(false);
-  }
-};
+    } catch (error) {
+      console.error('❌ Error al cargar catálogos:', error);
+    } finally {
+      setCargandoCatalogos(false);
+    }
+  };
 
   const cargarPostulaciones = async () => {
     try {
@@ -248,12 +254,10 @@ const cargarCatalogos = async () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Calcular los datos paginados
   const paginatedPostulaciones = postulaciones.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
-
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc', p: 3 }}>

@@ -36,18 +36,11 @@ const cargarCatalogos = async () => {
         postulacionesService.obtenerCargos(), // Desde postulacionesService
         getDistritos(), // Desde catalogoService
       ]);
-  console.log('📦 Estructura de cargosData:', cargosData);
-    console.log('📦 Estructura de distritosData:', distritosData);
-    console.log('📦 Primer cargo:', cargosData[0]);
-    console.log('📦 Primer distrito:', distritosData[0]);
+ 
       // Guardar los datos en el estado
       setCargosDisponibles(cargosData);
       setDistritosDisponibles(distritosData);
 
-      console.log('✅ Catálogos cargados:', { 
-        cargos: cargosData.length, 
-        distritos: distritosData.length 
-      });
     } catch (error) {
       console.error('❌ Error al cargar catálogos:', error);
       setMensaje({
@@ -171,7 +164,7 @@ const cargarCatalogos = async () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    console.log('=== INICIANDO ENVÍO DE FORMULARIO ===');
+  
     
     if (!validarFormulario()) {
       setMensaje({
@@ -215,10 +208,10 @@ const cargarCatalogos = async () => {
       const fileInput = document.getElementById('cv-file');
       if (fileInput) fileInput.value = '';
       
-      console.log('🎉 FORMULARIO ENVIADO CON ÉXITO');
+
       
     } catch (error) {
-      console.error('Error:', error);
+
       console.error('Mensaje:', error.message);
       
       setMensaje({
