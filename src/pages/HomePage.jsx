@@ -82,7 +82,7 @@ export default function HomePage() {
 
   return (
     <main className="main">
-       {/* Popup/Promo Modal
+       {/* Popup/Promo Modal */}
       {showPopup && (
         <div className="promo-popup-overlay">
           <div className="promo-popup-container" data-aos="zoom-in">
@@ -97,7 +97,7 @@ export default function HomePage() {
               
               <div className="promo-image-container">
                 <img 
-                  src="/assets/img/index/Dia-Mundial-de-la-Salud-Mental.png" // Cambia por la ruta de tu imagen promocional
+                  src="/assets/img/index/Dia-Internacional-de-la-Tartamudez.png" // Cambia por la ruta de tu imagen promocional
                   alt="Promoción especial - Centro Crecemos"
                   className="promo-image"
                 />
@@ -107,7 +107,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      )} */}
+      )}
   <section id="hero" className="hero section" style={{ paddingTop: '150px' }}>
       <div className="container" data-aos="fade-up" data-aos-delay="100">
         <div className="row align-items-center">
