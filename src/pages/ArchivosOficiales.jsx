@@ -71,6 +71,7 @@ import { getPacientesAll } from '../services/pacienteService';
 import { getTrabajadores } from '../services/trabajadorService';
 import archivosOficialesService from '../services/archivosOficialesService';
 import { getTiposDocumento } from '../services/tiposArchivoService';
+import { useMemo } from 'react';
 
 const GestionArchivosOficiales = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -118,16 +119,11 @@ const GestionArchivosOficiales = () => {
   const [codigoGeneradoPreview, setCodigoGeneradoPreview] = useState('');
   const [loadingCodigoPreview, setLoadingCodigoPreview] = useState(false);
   const [errorFechaVigencia, setErrorFechaVigencia] = useState('');
+  // ✅ 1. Agregar estado para tipos completos
+const [tiposArchivoCompletos, setTiposArchivoCompletos] = useState([]);
+const [tipoSeleccionado, setTipoSeleccionado] = useState(null);
 
 
-  const archivosOficialesService = {
-    listarArchivos: async () => ({ data: [] }),
-    subirArchivo: async (file, data) => ({ success: true, data: {} }),
-    generarCodigoPreview: async () => ({ codigo: 'CTC-PREVIEW' }),
-    descargarArchivo: async (id) => {},
-    visualizarArchivo: (id) => {},
-    eliminarArchivo: async (id) => {},
-  };
 
   useEffect(() => {
     cargarDatosIniciales();
@@ -178,6 +174,23 @@ const GestionArchivosOficiales = () => {
     }
   };
 
+  // ✅ 2. Filtrar tipos según destinatario
+const tiposArchivoFiltrados = useMemo(() => {
+  return tiposArchivoCompletos.filter(tipo => 
+    tipo.destinatario_tipo === tipoDestinatario || tipo.destinatario_tipo === 'ambos'
+  );
+}, [tiposArchivoCompletos, tipoDestinatario]);
+
+
+// ✅ 3. Función para calcular vigencia
+const calcularFechaVigencia = (fechaEmision, vigenciaMeses) => {
+  if (!vigenciaMeses || !fechaEmision) return '';
+  
+  const fecha = new Date(fechaEmision + 'T00:00:00');
+  fecha.setMonth(fecha.getMonth() + vigenciaMeses);
+  
+  return fecha.toISOString().split('T')[0];
+};
   const cargarDocumentos = async () => {
     try {
       setLoadingDocs(true);
@@ -192,18 +205,55 @@ const GestionArchivosOficiales = () => {
     }
   };
 
-  const cargarTiposArchivo = async () => {
-    try {
-      setLoadingTipos(true);
-      const response = await getTiposDocumento();
-      setTiposArchivo(response || []);
-    } catch (error) {
-      console.error('Error al cargar tipos de archivo:', error);
-      setError('Error al cargar los tipos de documento');
-    } finally {
-      setLoadingTipos(false);
-    }
-  };
+  // ✅ 4. Modificar handleTipoArchivoChange
+const handleTipoArchivoChange = (e) => {
+  const tipoId = e.target.value;
+  const tipo = tiposArchivoFiltrados.find(t => t.id == tipoId);
+  
+  setTipoSeleccionado(tipo);
+  
+  // Calcular vigencia automáticamente
+  const fechaVigenciaCalculada = tipo?.vigencia_meses 
+    ? calcularFechaVigencia(formData.fechaEmision, tipo.vigencia_meses)
+    : '';
+  
+  setFormData(prev => ({
+    ...prev,
+    tipoArchivoId: tipoId,
+    fechaVigencia: fechaVigenciaCalculada,
+  }));
+  
+  setError('');
+};
+
+// ✅ 5. Modificar cargarTiposArchivo
+const cargarTiposArchivo = async () => {
+  try {
+    setLoadingTipos(true);
+    const response = await getTiposDocumento();
+    setTiposArchivoCompletos(response || []);
+  } catch (error) {
+    console.error('Error al cargar tipos de archivo:', error);
+    setError('Error al cargar los tipos de documento');
+  } finally {
+    setLoadingTipos(false);
+  }
+};
+
+// ✅ 6. Recalcular vigencia al cambiar fecha de emisión
+const handleFechaEmisionChange = (e) => {
+  const nuevaFechaEmision = e.target.value;
+  
+  const fechaVigenciaCalculada = tipoSeleccionado?.vigencia_meses
+    ? calcularFechaVigencia(nuevaFechaEmision, tipoSeleccionado.vigencia_meses)
+    : formData.fechaVigencia;
+  
+  setFormData(prev => ({
+    ...prev,
+    fechaEmision: nuevaFechaEmision,
+    fechaVigencia: fechaVigenciaCalculada,
+  }));
+};
 
   const generarCodigoPreview = async () => {
     try {
@@ -370,18 +420,20 @@ const GestionArchivosOficiales = () => {
 
   const validarFormulario = () => {
     // ✅ VALIDACIÓN ACTUALIZADA
-    if (!formData.pacienteId && !formData.trabajadorId) {
-      setError('Debe seleccionar un paciente o un trabajador');
-      return false;
-    }
-    if (formData.pacienteId && formData.trabajadorId) {
-      setError('No puede seleccionar paciente y trabajador al mismo tiempo');
-      return false;
-    }
-    if (!formData.terapeutaId) {
-      setError('Debe seleccionar el terapeuta responsable');
-      return false;
-    }
+  if (!formData.pacienteId && !formData.trabajadorId) {
+    setError('Debe seleccionar un paciente o un trabajador');
+    return false;
+  }
+  if (formData.pacienteId && formData.trabajadorId) {
+    setError('No puede seleccionar paciente y trabajador al mismo tiempo');
+    return false;
+  }
+  
+  // ✅ SOLO validar terapeuta si es paciente
+  if (tipoDestinatario === 'paciente' && !formData.terapeutaId) {
+    setError('Debe seleccionar el terapeuta responsable');
+    return false;
+  }
     if (!formData.tipoArchivoId) {
       setError('Debe seleccionar el tipo de archivo');
       return false;
@@ -507,6 +559,7 @@ const GestionArchivosOficiales = () => {
       background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
       minHeight: '100vh'
     }}>
+      <TopMenu/>
       <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
         {/* Hero Header */}
         <Box sx={{
@@ -1196,15 +1249,21 @@ const GestionArchivosOficiales = () => {
                       )}
                     </Stack>
 
-                    {tipoDestinatario === 'paciente' ? (
+                   {tipoDestinatario === 'paciente' ? (
                       <Autocomplete
                         options={pacientes}
                         getOptionLabel={(option) => `${option.nombres} ${option.apellido_paterno} ${option.apellido_materno} - ${option.numero_documento}`}
                         value={pacienteSeleccionado}
                         onChange={(e, newValue) => {
+                          console.log('Paciente seleccionado:', newValue); // Debug
                           setPacienteSeleccionado(newValue);
-                          setFormData(prev => ({ ...prev, pacienteId: newValue?.id || '', trabajadorId: '' }));
-                        } }
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            pacienteId: newValue?.id || newValue?.paciente_id || '', 
+                            trabajadorId: '' 
+                          }));
+                          setError(''); // Limpiar error al seleccionar
+                        }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -1227,9 +1286,15 @@ const GestionArchivosOficiales = () => {
                         getOptionLabel={(option) => `${option.nombres} ${option.apellidos}${option.dni ? ` - ${option.dni}` : ''}${option.especialidad ? ` (${option.especialidad})` : ''}`}
                         value={trabajadorSeleccionado}
                         onChange={(e, newValue) => {
+                          console.log('Trabajador seleccionado:', newValue); // Debug
                           setTrabajadorSeleccionado(newValue);
-                          setFormData(prev => ({ ...prev, trabajadorId: newValue?.id || '', pacienteId: '' }));
-                        } }
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            trabajadorId: newValue?.id || newValue?.trabajador_id || '', 
+                            pacienteId: '' 
+                          }));
+                          setError(''); // Limpiar error al seleccionar
+                        }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -1250,7 +1315,8 @@ const GestionArchivosOficiales = () => {
                   </Box>
                 </Grid>
 
-                {/* Terapeuta Responsable */}
+              {/* Terapeuta Responsable - SOLO para pacientes */}
+              {tipoDestinatario === 'paciente' && (
                 <Grid item xs={12}>
                   <Box sx={{ mb: 2 }}>
                     <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
@@ -1282,6 +1348,7 @@ const GestionArchivosOficiales = () => {
                       noOptionsText="No se encontraron terapeutas" />
                   </Box>
                 </Grid>
+              )}
 
                 {/* Tipo y Fecha */}
                 <Grid item xs={12} md={6}>
@@ -1296,7 +1363,7 @@ const GestionArchivosOficiales = () => {
                     fullWidth
                     name="tipoArchivoId"
                     value={formData.tipoArchivoId}
-                    onChange={handleInputChange}
+                    onChange={handleTipoArchivoChange}
                     placeholder="Seleccionar tipo..."
                     disabled={loadingTipos}
                     sx={{
@@ -1309,15 +1376,58 @@ const GestionArchivosOficiales = () => {
                     {loadingTipos ? (
                       <MenuItem disabled>Cargando...</MenuItem>
                     ) : (
-                      tiposArchivo.map((tipo) => (
+                      tiposArchivoFiltrados.map((tipo) => (
                         <MenuItem key={tipo.id} value={tipo.id}>
-                          {tipo.nombre}
+                          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+                            <Typography>{tipo.nombre}</Typography>
+                            {tipo.vigencia_meses && (
+                              <Chip 
+                                label={`${tipo.vigencia_meses} ${tipo.vigencia_meses === 1 ? 'mes' : 'meses'}`}
+                                size="small"
+                                sx={{ 
+                                  ml: 2,
+                                  background: '#dcfce7', 
+                                  color: '#166534',
+                                  fontWeight: 600,
+                                  fontSize: '0.7rem',
+                                }}
+                              />
+                            )}
+                          </Box>
                         </MenuItem>
                       ))
                     )}
                   </TextField>
                 </Grid>
 
+                {tipoSeleccionado && (
+              <Grid item xs={12}>
+                <Alert
+                  severity={tipoSeleccionado.vigencia_meses ? "success" : "info"}
+                  sx={{ borderRadius: 3 }}
+                >
+                  {tipoSeleccionado.vigencia_meses ? (
+                    <>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        ✓ Vigencia: {tipoSeleccionado.vigencia_meses} {tipoSeleccionado.vigencia_meses === 1 ? 'mes' : 'meses'}
+                      </Typography>
+                      {formData.fechaVigencia && (
+                        <Typography variant="caption" sx={{ display: 'block', mt: 1 }}>
+                          Vence el: <strong>{formatearFecha(formData.fechaVigencia)}</strong>
+                        </Typography>
+                      )}
+                    </>
+                  ) : (
+                    <Typography variant="body2">
+                      ∞ Este documento no tiene fecha de vencimiento
+                    </Typography>
+                  )}
+                </Alert>
+              </Grid>
+            )}
+
+
+                {/* Fecha Emisión */}
                 <Grid item xs={12} md={6}>
                   <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
                     <CalendarToday sx={{ fontSize: 22, color: '#A3C644' }} />
@@ -1330,16 +1440,16 @@ const GestionArchivosOficiales = () => {
                     fullWidth
                     name="fechaEmision"
                     value={formData.fechaEmision}
-                    onChange={handleInputChange}
+                    onChange={handleFechaEmisionChange}
                     InputLabelProps={{ shrink: true }}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: 3,
                         background: '#f8fafc'
                       }
-                    }} />
+                    }}
+                  />
                 </Grid>
-
                 {/* Fecha Vigencia */}
                 <Grid item xs={12} md={6}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1e293b', mb: 1.5 }}>
