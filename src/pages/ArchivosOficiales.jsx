@@ -119,67 +119,97 @@ const GestionArchivosOficiales = () => {
   const [codigoGeneradoPreview, setCodigoGeneradoPreview] = useState('');
   const [loadingCodigoPreview, setLoadingCodigoPreview] = useState(false);
   const [errorFechaVigencia, setErrorFechaVigencia] = useState('');
-  // ✅ 1. Agregar estado para tipos completos
-const [tiposArchivoCompletos, setTiposArchivoCompletos] = useState([]);
-const [tipoSeleccionado, setTipoSeleccionado] = useState(null);
 
+  const [tiposArchivoCompletos, setTiposArchivoCompletos] = useState([]);
+  const [tipoSeleccionado, setTipoSeleccionado] = useState(null);
+
+  const [datosInicializados, setDatosInicializados] = useState(false);
 
 
   useEffect(() => {
-    cargarDatosIniciales();
-    cargarTiposArchivo();
-  }, []);
+    if (datosInicializados) return; // ✅ Evitar segunda ejecución
+    
+    const inicializar = async () => {
+      await cargarDatosIniciales();
+      await cargarTiposArchivo();
+      setDatosInicializados(true); 
+    };
+    inicializar();
+  }, [datosInicializados]);
 
   useEffect(() => {
-    if (tabValue === 0) {
+    if (tabValue === 0 && documentos.length === 0 && datosInicializados) {
       cargarDocumentos();
     }
-  }, [tabValue]);
+  }, [tabValue, datosInicializados]);  // ✅ Solo depende del tab
 
   useEffect(() => {
-    filtrarDocumentos();
-  }, [searchTerm, filtroTipo, documentos]);
+    let filtered = [...documentos];
 
-  const cargarDatosIniciales = async () => {
-    try {
-      setLoadingData(true);
-      
-      const resPacientes = await getPacientesAll();
-      const pacientesData = resPacientes.data || resPacientes;
-      setPacientes(pacientesData);
-
-      const resTrabajadores = await getTrabajadores();
-      const trabajadoresData = resTrabajadores.data || resTrabajadores;
-      
-      // Filtrar trabajadores (todos excepto los terapeutas que se usan como responsables)
-      const trabajadoresFiltrados = Array.isArray(trabajadoresData)
-        ? trabajadoresData.filter(t => t && typeof t === 'object' && t.nombres)
-        : [];
-      
-      setTrabajadores(trabajadoresFiltrados);
-
-      // Filtrar solo terapeutas para el campo de responsable
-      const terapeutasFiltrados = Array.isArray(trabajadoresData)
-        ? trabajadoresData.filter(
-            (t) => t && typeof t === 'object' && t.nombres && t.rol && t.rol.id === 4
-          )
-        : [];
-
-      setTerapeutas(terapeutasFiltrados);
-    } catch (error) {
-      console.error('Error al cargar datos:', error);
-      setError('Error al cargar los datos iniciales');
-    } finally {
-      setLoadingData(false);
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(doc => {
+        const pacienteNombre = doc.paciente 
+          ? `${doc.paciente.nombres} ${doc.paciente.apellido_paterno} ${doc.paciente.apellido_materno}`.toLowerCase()
+          : '';
+        const trabajadorNombre = doc.trabajador
+          ? `${doc.trabajador.nombres} ${doc.trabajador.apellidos}`.toLowerCase()
+          : '';
+        
+        return doc.codigoValidacion?.toLowerCase().includes(term) ||
+              pacienteNombre.includes(term) ||
+              trabajadorNombre.includes(term) ||
+              doc.tipoArchivo?.nombre?.toLowerCase().includes(term) ||
+              doc.nombreArchivo?.toLowerCase().includes(term);
+      });
     }
-  };
 
-  // ✅ 2. Filtrar tipos según destinatario
-const tiposArchivoFiltrados = useMemo(() => {
-  return tiposArchivoCompletos.filter(tipo => 
-    tipo.destinatario_tipo === tipoDestinatario || tipo.destinatario_tipo === 'ambos'
-  );
-}, [tiposArchivoCompletos, tipoDestinatario]);
+    if (filtroTipo) {
+      filtered = filtered.filter(doc => doc.tipoArchivo?.id === filtroTipo);
+    }
+
+    setDocumentosFiltrados(filtered);
+  }, [searchTerm, filtroTipo, documentos]);
+    const cargarDatosIniciales = async () => {
+      try {
+        setLoadingData(true);
+        
+        const resPacientes = await getPacientesAll();
+        const pacientesData = resPacientes.data || resPacientes;
+        setPacientes(pacientesData);
+
+        const resTrabajadores = await getTrabajadores();
+        const trabajadoresData = resTrabajadores.data || resTrabajadores;
+        
+        // Filtrar trabajadores (todos excepto los terapeutas que se usan como responsables)
+        const trabajadoresFiltrados = Array.isArray(trabajadoresData)
+          ? trabajadoresData.filter(t => t && typeof t === 'object' && t.nombres)
+          : [];
+        
+        setTrabajadores(trabajadoresFiltrados);
+
+        // Filtrar solo terapeutas para el campo de responsable
+        const terapeutasFiltrados = Array.isArray(trabajadoresData)
+          ? trabajadoresData.filter(
+              (t) => t && typeof t === 'object' && t.nombres && t.rol && t.rol.id === 4
+            )
+          : [];
+         
+
+        setTerapeutas(terapeutasFiltrados);
+      } catch (error) {
+        console.error('Error al cargar datos:', error);
+        setError('Error al cargar los datos iniciales');
+      } finally {
+        setLoadingData(false);
+      }
+    };
+
+  const tiposArchivoFiltrados = useMemo(() => {
+    return tiposArchivoCompletos.filter(tipo => 
+      tipo.destinatario_tipo === tipoDestinatario || tipo.destinatario_tipo === 'ambos'
+    );
+  }, [tiposArchivoCompletos, tipoDestinatario]);
 
 
 // ✅ 3. Función para calcular vigencia
@@ -226,12 +256,18 @@ const handleTipoArchivoChange = (e) => {
   setError('');
 };
 
-// ✅ 5. Modificar cargarTiposArchivo
+// ✅ 5. Modificar cargarTiposArchivo para cargar TODOS los tipos (sin filtrar)
 const cargarTiposArchivo = async () => {
   try {
     setLoadingTipos(true);
     const response = await getTiposDocumento();
-    setTiposArchivoCompletos(response || []);
+    const tipos = response || [];
+    
+    // ✅ Guardar TODOS los tipos para el filtro del dashboard
+    setTiposArchivo(tipos);
+    
+    // ✅ Guardar también para el formulario (se filtrarán después)
+    setTiposArchivoCompletos(tipos);
   } catch (error) {
     console.error('Error al cargar tipos de archivo:', error);
     setError('Error al cargar los tipos de documento');
@@ -239,7 +275,6 @@ const cargarTiposArchivo = async () => {
     setLoadingTipos(false);
   }
 };
-
 // ✅ 6. Recalcular vigencia al cambiar fecha de emisión
 const handleFechaEmisionChange = (e) => {
   const nuevaFechaEmision = e.target.value;
@@ -276,33 +311,6 @@ const handleFechaEmisionChange = (e) => {
     }
   };
 
-  const filtrarDocumentos = () => {
-    let filtered = [...documentos];
-
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(doc => {
-        const pacienteNombre = doc.paciente 
-          ? `${doc.paciente.nombres} ${doc.paciente.apellido_paterno} ${doc.paciente.apellido_materno}`.toLowerCase()
-          : '';
-        const trabajadorNombre = doc.trabajador
-          ? `${doc.trabajador.nombres} ${doc.trabajador.apellidos}`.toLowerCase()
-          : '';
-        
-        return doc.codigoValidacion?.toLowerCase().includes(term) ||
-               pacienteNombre.includes(term) ||
-               trabajadorNombre.includes(term) ||
-               doc.tipoArchivo?.nombre?.toLowerCase().includes(term) ||
-               doc.nombreArchivo?.toLowerCase().includes(term);
-      });
-    }
-
-    if (filtroTipo) {
-      filtered = filtered.filter(doc => doc.tipoArchivo?.id === filtroTipo);
-    }
-
-    setDocumentosFiltrados(filtered);
-  };
 
   const handleMenuOpen = (event, documento) => {
     setAnchorEl(event.currentTarget);
@@ -344,7 +352,12 @@ const handleFechaEmisionChange = (e) => {
       await archivosOficialesService.eliminarArchivo(documentoSeleccionado.id);
       setSuccess('Documento eliminado correctamente');
       setTimeout(() => setSuccess(''), 3000);
-      cargarDocumentos();
+      
+      // ✅ Recargar solo si estamos en el tab de documentos
+      if (tabValue === 0) {
+        cargarDocumentos();
+      }
+      
       setDialogEliminar(false);
       setDocumentoSeleccionado(null);
     } catch (error) {
@@ -453,50 +466,52 @@ const handleFechaEmisionChange = (e) => {
     return true;
   };
 
-  const handleSubmit = async () => {
-    if (!validarFormulario()) return;
-
-    try {
-      setLoadingForm(true);
-      setError('');
-
-      const resultado = await archivosOficialesService.subirArchivo(archivo, formData);
-
-      if (resultado.success) {
-        setCodigoGenerado(resultado.data);
-        setDialogExito(true);
+    const handleSubmit = async () => {
+      if (!validarFormulario()) return;
+      
+      try {
+        setLoadingForm(true);
+        setError('');
         
-        // Resetear formulario
-        setFormData({
-          pacienteId: '',
-          trabajadorId: '',
-          terapeutaId: '',
-          tipoArchivoId: '',
-          fechaEmision: new Date().toISOString().split('T')[0],
-          fechaVigencia: '',
-          descripcion: '',
-          codigoManual: '',
-        });
-        setPacienteSeleccionado(null);
-        setTrabajadorSeleccionado(null);
-        setTerapeutaSeleccionado(null);
-        setArchivo(null);
-        setCodigoGeneradoPreview('');
-        setTipoDestinatario('paciente');
-        const input = document.getElementById('file-upload');
-        if (input) input.value = '';
-
-        if (tabValue === 0) {
-          cargarDocumentos();
+        const resultado = await archivosOficialesService.subirArchivo(archivo, formData);
+        
+        if (resultado.success) {
+          setCodigoGenerado(resultado.data);
+          setDialogExito(true);
+          
+          // Resetear formulario
+          setFormData({
+            pacienteId: '',
+            trabajadorId: '',
+            terapeutaId: '',
+            tipoArchivoId: '',
+            fechaEmision: new Date().toISOString().split('T')[0],
+            fechaVigencia: '',
+            descripcion: '',
+            codigoManual: '',
+          });
+          setPacienteSeleccionado(null);
+          setTrabajadorSeleccionado(null);
+          setTerapeutaSeleccionado(null);
+          setArchivo(null);
+          setCodigoGeneradoPreview('');
+          setTipoDestinatario('paciente');
+          setTipoSeleccionado(null); // ✅ Agregar
+          
+          const input = document.getElementById('file-upload');
+          if (input) input.value = '';
+          
+          // ❌ ELIMINAR ESTA LÍNEA:
+          // await cargarDocumentos(); 
+          // ✅ Ya no es necesario porque se recargará al cambiar al tab 0
         }
+      } catch (err) {
+        console.error('Error al subir archivo:', err);
+        setError(err.message || 'Error al subir el archivo. Intente nuevamente.');
+      } finally {
+        setLoadingForm(false);
       }
-    } catch (err) {
-      console.error('Error al subir archivo:', err);
-      setError(err.message || 'Error al subir el archivo. Intente nuevamente.');
-    } finally {
-      setLoadingForm(false);
-    }
-  };
+    };
 
   const copiarCodigo = () => {
     if (codigoGenerado?.codigoValidacion) {
@@ -1255,7 +1270,7 @@ const handleFechaEmisionChange = (e) => {
                         getOptionLabel={(option) => `${option.nombres} ${option.apellido_paterno} ${option.apellido_materno} - ${option.numero_documento}`}
                         value={pacienteSeleccionado}
                         onChange={(e, newValue) => {
-                          console.log('Paciente seleccionado:', newValue); // Debug
+                        
                           setPacienteSeleccionado(newValue);
                           setFormData(prev => ({ 
                             ...prev, 
@@ -1283,10 +1298,10 @@ const handleFechaEmisionChange = (e) => {
                     ) : (
                       <Autocomplete
                         options={trabajadores}
-                        getOptionLabel={(option) => `${option.nombres} ${option.apellidos}${option.dni ? ` - ${option.dni}` : ''}${option.especialidad ? ` (${option.especialidad})` : ''}`}
+                        getOptionLabel={(option) => `${option.nombres} ${option.apellidos}${option.dni ? ` - ${option.dni}` : ''}`}
                         value={trabajadorSeleccionado}
                         onChange={(e, newValue) => {
-                          console.log('Trabajador seleccionado:', newValue); // Debug
+                         
                           setTrabajadorSeleccionado(newValue);
                           setFormData(prev => ({ 
                             ...prev, 
@@ -1327,7 +1342,7 @@ const handleFechaEmisionChange = (e) => {
                     </Stack>
                     <Autocomplete
                       options={terapeutas}
-                      getOptionLabel={(option) => `${option.nombres} ${option.apellidos}${option.especialidad ? ` - ${option.especialidad}` : ''}`}
+                      getOptionLabel={(option) => `${option.nombres} ${option.apellidos}${option.dni ? ` - ${option.dni}` : ''}`}
                       value={terapeutaSeleccionado}
                       onChange={(e, newValue) => {
                         setTerapeutaSeleccionado(newValue);
@@ -2131,28 +2146,28 @@ const handleFechaEmisionChange = (e) => {
             Subir Otro
           </Button>
           <Button
-            variant="contained"
-            onClick={() => {
-              setDialogExito(false);
-              setCodigoGenerado(null);
-              setTabValue(0);
-              cargarDocumentos();
-            } }
-            sx={{
-              px: 5,
-              py: 1.5,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, #A3C644 0%, #8AB030 100%)',
-              fontWeight: 600,
-              boxShadow: '0 4px 12px rgba(163, 198, 68, 0.3)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #8AB030 0%, #7A9F28 100%)',
-                boxShadow: '0 6px 16px rgba(163, 198, 68, 0.4)'
-              },
-            }}
-          >
-            Ver Documentos
-          </Button>
+              variant="contained"
+              onClick={() => {
+                setDialogExito(false);
+                setCodigoGenerado(null);
+                setTabValue(0); // ✅ Esto trigger el useEffect que carga documentos
+     
+              }}
+              sx={{
+                px: 5,
+                py: 1.5,
+                borderRadius: 3,
+                background: 'linear-gradient(135deg, #A3C644 0%, #8AB030 100%)',
+                fontWeight: 600,
+                boxShadow: '0 4px 12px rgba(163, 198, 68, 0.3)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #8AB030 0%, #7A9F28 100%)',
+                  boxShadow: '0 6px 16px rgba(163, 198, 68, 0.4)'
+                },
+              }}
+            >
+              Ver Documentos
+            </Button>
         </DialogActions>
       </Dialog>
     </Box><style>
