@@ -10,7 +10,7 @@ export default function HomePage() {
   
   const heroImages = [
     '/assets/img/index/Carrusel servicios.png',
-    '/assets/img/index/Psicologia Infantil.png'
+    '/assets/img/index/carrusel psicologia infantil.png',
     
   ];
 
@@ -97,7 +97,7 @@ export default function HomePage() {
               
               <div className="promo-image-container">
                 <img 
-                  src="/assets/img/index/Dia-Mundial-de-la-Salud-Mental.png" // Cambia por la ruta de tu imagen promocional
+                  src="/assets/img/index/Dia-Internacional-de-la-Tartamudez.png" // Cambia por la ruta de tu imagen promocional
                   alt="Promoción especial - Centro Crecemos"
                   className="promo-image"
                 />
@@ -482,7 +482,8 @@ export default function HomePage() {
           { img: '/assets/img/index/mamalama.png', name: 'Mamalama' },
           { img: '/assets/img/index/logo-upn-nuevo.png', name: 'Universidad Privada del Norte' },
           { img: '/assets/img/index/logo_PEDIATRIKIS.png', name: 'Pediatriks' },
-          { img: '/assets/img/index/fisioestudio360.png', name: 'Fisioestudio 360' }
+          { img: '/assets/img/index/fisioestudio360.png', name: 'Fisioestudio 360' },
+          { img: '/assets/img/index/UCH.png', name: 'Universidad de Ciencias y Humanidades' }
         ].map((ally, index) => (
           <div key={index} className="swiper-slide text-center" style={{ padding: '20px 10px' }}>
             <div style={{ 

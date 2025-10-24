@@ -5022,7 +5022,6 @@ section,
 /* ========================================
    VERIFICADOR DE DOCUMENTOS - SCOPED STYLES
    Agregar al final de global.css
-======================================== */
 
 /* Contenedor principal - clase única */
 .verificar-documentos-wrapper {
@@ -5033,7 +5032,6 @@ section,
 
 /* ========================================
    HEADER DEL VERIFICADOR
-======================================== */
 .verificar-header {
   background: linear-gradient(135deg, #c263f9 0%, #d857d0 100%);
   color: white;
@@ -5125,7 +5123,6 @@ section,
 
 /* ========================================
    CONTENIDO PRINCIPAL
-======================================== */
 .verificar-main-content {
   flex: 1;
   padding: 3rem 0;
@@ -5150,7 +5147,6 @@ section,
 
 /* ========================================
    PANEL COMÚN
-======================================== */
 .verificar-panel {
   background: white;
   border-radius: 20px;
@@ -5166,7 +5162,6 @@ section,
 
 /* ========================================
    PANEL DE BÚSQUEDA
-======================================== */
 .verificar-panel-title {
   display: flex;
   align-items: center;
@@ -5293,7 +5288,6 @@ section,
 
 /* ========================================
    PANEL DE RESULTADO
-======================================== */
 .verificar-result-header {
   display: flex;
   justify-content: space-between;
@@ -5354,7 +5348,6 @@ section,
 
 /* ========================================
    ALERTAS
-======================================== */
 .verificar-alert {
   padding: 1.5rem;
   border-radius: 12px;
@@ -5396,7 +5389,6 @@ section,
 
 /* ========================================
    CARDS DE INFORMACIÓN
-======================================== */
 .verificar-info-cards {
   display: grid;
   gap: 1.25rem;
@@ -5494,7 +5486,6 @@ section,
 
 /* ========================================
    ACCIONES
-======================================== */
 .verificar-actions-bar {
   display: flex;
   gap: 1rem;
@@ -5527,7 +5518,6 @@ section,
 
 /* ========================================
    RESPONSIVE
-======================================== */
 @media (max-width: 768px) {
   .verificar-header-inner {
     flex-direction: column;
@@ -5591,7 +5581,6 @@ section,
 
 /* ========================================
    PRINT STYLES
-======================================== */
 @media print {
   .verificar-header,
   .verificar-panel:first-child,
@@ -5610,5 +5599,27 @@ section,
 
   .verificar-info-card {
     break-inside: avoid;
+  }
+}
+
+/* Mejora el comportamiento del scroll en iOS/Safari */
+html {
+  scroll-behavior: auto; /* Evita conflictos con smooth scroll en iOS */
+  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+}
+
+body {
+  overflow-x: hidden; /* Evita scroll horizontal no deseado */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Previene el rubber banding en iOS si es necesario */
+body.no-bounce {
+  overscroll-behavior-y: none;
+}
+/* Para Safari/iOS que a veces ignora scroll-behavior */
+@supports (-webkit-overflow-scrolling: touch) {
+  html {
+    scroll-behavior: smooth;
   }
 }
