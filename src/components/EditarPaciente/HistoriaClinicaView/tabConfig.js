@@ -30,6 +30,15 @@ export const TAB_CONFIG = [
     required: false,
     description: 'Información de la entrevista con los padres'
   },
+  {
+    id: 'evaluacion-terapia-ocupacional',
+    label: 'Evaluación Terapia Ocupacional',
+    icon: Healing, // Puedes cambiar el icono si lo deseas
+    component: 'EvaluacionTerapiaOcupacional',
+    visible: () => true,
+    required: false,
+    description: 'Evaluación completa de terapia ocupacional'
+  },
   
 ];
 

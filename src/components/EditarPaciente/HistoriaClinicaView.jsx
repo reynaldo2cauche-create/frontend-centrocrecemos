@@ -35,6 +35,7 @@ import { getVisibleTabs, getTabIndex } from './HistoriaClinicaView/tabConfig';
 import EntrevistaPadresView from './HistoriaClinicaView/components/EntrevistaPadresView';
 import ReporteEvolucion from './HistoriaClinicaView/components/ReporteEvolucion';
 import { calcularEdad } from '../../utils/date';
+import EvaluacionTerapiaOcupacional from './HistoriaClinicaView/components/EvaluacionTOcupacionalView';
 
 // Componente para el contenido de las pestañas
 function TabPanel({ children, value, index, ...other }) {
@@ -327,6 +328,8 @@ const HistoriaClinicaView = ({ paciente, user }) => {
         );
       case 'entrevista-padres':
         return <EntrevistaPadresView paciente={paciente} user={user} />;
+      case 'evaluacion-terapia-ocupacional':
+        return <EvaluacionTerapiaOcupacional />;
       default:
         return <div>Contenido no encontrado</div>;
     }
