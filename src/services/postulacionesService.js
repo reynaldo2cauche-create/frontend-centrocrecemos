@@ -117,6 +117,19 @@ class PostulacionesService {
     }
   }
 
+   async obtenerEstadisticasPorEstados() {
+    try {
+      const response = await api.get('/postulaciones/estadisticas-por-estados');
+      console.log('Respuesta de estadísticas por estados:', response.data);
+      return response.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 
+        'Error al obtener estadísticas';
+      throw new Error(errorMessage);
+    }
+  }
+
+
   // Obtener una postulación por ID
   async obtenerPostulacionPorId(id) {
     try {

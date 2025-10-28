@@ -78,7 +78,7 @@ const PostulacionesDashboard = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [estadisticas, setEstadisticas] = useState({
     total: 0,
-    porEstado: []
+    Estados: []
   });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -152,7 +152,7 @@ const PostulacionesDashboard = () => {
 
   const cargarEstadisticas = async () => {
     try {
-      const data = await postulacionesService.obtenerEstadisticas();
+      const data = await postulacionesService.obtenerEstadisticasPorEstados();
       setEstadisticas(data);
     } catch (error) {
       console.error('❌ Error al cargar estadísticas:', error);
@@ -234,9 +234,9 @@ const PostulacionesDashboard = () => {
     setModalCV(null);
   };
 
-  const getEstadisticaPorEstado = (estado) => {
-    const est = estadisticas.porEstado?.find(e => e.estado_postulacion === estado);
-    return est ? parseInt(est.count) : 0;
+  const getEstadisticaPorEstado = (nombre) => {
+    const est = estadisticas.estados?.find(e => e.nombre === nombre);
+    return est ? est.cantidad : 0;
   };
 
   const getInitials = (nombre, apellido) => {
